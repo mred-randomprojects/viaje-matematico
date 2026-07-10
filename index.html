@@ -483,221 +483,40 @@
 (function(){
   "use strict";
 
-  var CURRICULUM = [
-    { name:"Números y valor posicional", note:"Dónde vive cada número", lessons:[
-      { t:"Valor posicional: unidades, decenas, centenas", ex:[
-        { q:"¿Qué valor tiene el 7 en el número 4.735?", a:"7 centenas, o sea 700." },
-        { q:"Escribí el número que tiene 3 centenas, 0 decenas y 6 unidades.", a:"306" },
-        { q:"¿Cuántas decenas hay en 82?", a:"8 decenas (y 2 unidades sueltas)." } ] },
-      { t:"Comparar y ordenar números", ex:[
-        { q:"Poné el signo correcto: 45 __ 54", a:"45 < 54" },
-        { q:"Ordená de menor a mayor: 23, 9, 31, 17", a:"9, 17, 23, 31" },
-        { q:"¿Cuál es más grande: 108 o 99?", a:"108" } ] },
-      { t:"Redondear números", ex:[
-        { q:"Redondeá 47 a la decena más cercana.", a:"50" },
-        { q:"Redondeá 123 a la centena más cercana.", a:"100" },
-        { q:"Redondeá 85 a la decena más cercana.", a:"90 (el 5 redondea para arriba)." } ] }
-    ]},
-    { name:"Suma y resta", note:"Juntar y quitar", lessons:[
-      { t:"Sumar sin llevarse", ex:[
-        { q:"34 + 25 =", a:"59" }, { q:"142 + 36 =", a:"178" }, { q:"61 + 7 =", a:"68" } ] },
-      { t:"Sumar llevándose", ex:[
-        { q:"48 + 27 =", a:"75" }, { q:"156 + 89 =", a:"245" }, { q:"77 + 58 =", a:"135" } ] },
-      { t:"Restar pidiendo prestado", ex:[
-        { q:"52 − 38 =", a:"14" }, { q:"100 − 64 =", a:"36" }, { q:"205 − 87 =", a:"118" } ] },
-      { t:"Problemas de todos los días", ex:[
-        { q:"En el súper gastás $1.250 y pagás con $2.000. ¿Cuánto te dan de vuelto?", a:"$750" },
-        { q:"Tenés 3 paquetes con 6 facturas cada uno. ¿Cuántas facturas hay en total?", a:"18 facturas (3 × 6)." },
-        { q:"Un colectivo tiene 40 asientos y hay 27 ocupados. ¿Cuántos quedan libres?", a:"13 asientos." } ] }
-    ]},
-    { name:"Multiplicación y división", note:"Sumar rápido, repartir justo", lessons:[
-      { t:"Tablas de multiplicar", ex:[
-        { q:"7 × 8 =", a:"56" }, { q:"6 × 9 =", a:"54" }, { q:"4 × 7 =", a:"28" } ] },
-      { t:"Multiplicación de varias cifras", ex:[
-        { q:"23 × 4 =", a:"92" }, { q:"45 × 12 =", a:"540" }, { q:"134 × 5 =", a:"670" } ] },
-      { t:"División básica", ex:[
-        { q:"56 ÷ 8 =", a:"7" }, { q:"81 ÷ 9 =", a:"9" }, { q:"72 ÷ 6 =", a:"12" } ] },
-      { t:"División con resto", ex:[
-        { q:"17 ÷ 5 =", a:"3 y sobra 2 (3 × 5 = 15, faltan 2)." },
-        { q:"29 ÷ 4 =", a:"7 y sobra 1." },
-        { q:"50 ÷ 7 =", a:"7 y sobra 1." } ] }
-    ]},
-    { name:"Fracciones", note:"Partes de un entero — la más importante", lessons:[
-      { t:"¿Qué es una fracción?", ex:[
-        { q:"En 3/4, ¿cuál es el numerador y cuál el denominador?", a:"Numerador 3 (arriba), denominador 4 (abajo)." },
-        { q:"Dividís una pizza en 8 porciones y comés 3. ¿Qué fracción comiste?", a:"3/8" },
-        { q:"De 5 partes iguales hay 2 pintadas. ¿Qué fracción está pintada?", a:"2/5" } ] },
-      { t:"Fracciones equivalentes", ex:[
-        { q:"Completá: 1/2 = ?/6", a:"3/6 (multiplicás arriba y abajo por 3)." },
-        { q:"¿2/4 es lo mismo que 1/2?", a:"Sí, son equivalentes." },
-        { q:"Escribí una fracción equivalente a 3/5 multiplicando por 2.", a:"6/10" } ] },
-      { t:"Simplificar fracciones", ex:[
-        { q:"Simplificá 4/8", a:"1/2 (dividís arriba y abajo por 4)." },
-        { q:"Simplificá 6/9", a:"2/3 (dividís por 3)." },
-        { q:"Simplificá 10/15", a:"2/3 (dividís por 5)." } ] },
-      { t:"Comparar fracciones", ex:[
-        { q:"¿Cuál es más grande: 1/2 o 1/3?", a:"1/2 (mientras más grande el de abajo, más chicos los pedazos)." },
-        { q:"¿Cuál es más grande: 3/4 o 2/4?", a:"3/4" },
-        { q:"Ordená de menor a mayor: 1/4, 1/2, 1/8", a:"1/8, 1/4, 1/2" } ] },
-      { t:"Sumar y restar (mismo denominador)", ex:[
-        { q:"1/5 + 2/5 =", a:"3/5 (sumás los de arriba, el de abajo queda igual)." },
-        { q:"4/7 − 2/7 =", a:"2/7" },
-        { q:"3/8 + 3/8 =", a:"6/8, que simplificado es 3/4." } ] },
-      { t:"Sumar y restar (distinto denominador)", ex:[
-        { q:"1/2 + 1/4 =", a:"3/4 (pasás 1/2 a 2/4 y sumás)." },
-        { q:"2/3 + 1/6 =", a:"5/6 (pasás 2/3 a 4/6 y sumás)." },
-        { q:"3/4 − 1/2 =", a:"1/4 (pasás 1/2 a 2/4 y restás)." } ] },
-      { t:"Multiplicar fracciones", ex:[
-        { q:"1/2 × 3/4 =", a:"3/8 (multiplicás arriba con arriba y abajo con abajo)." },
-        { q:"2/3 × 3/5 =", a:"6/15, que simplificado es 2/5." },
-        { q:"1/2 × 1/2 =", a:"1/4" } ] },
-      { t:"Dividir fracciones", ex:[
-        { q:"1/2 ÷ 1/4 =", a:"2 (das vuelta la segunda y multiplicás: 1/2 × 4/1 = 4/2)." },
-        { q:"3/4 ÷ 1/2 =", a:"3/2, o sea 1 y 1/2." },
-        { q:"2/3 ÷ 2/3 =", a:"1 (cualquier cosa dividida por sí misma da 1)." } ] }
-    ]},
-    { name:"Decimales", note:"Fracciones disfrazadas", lessons:[
-      { t:"Leer decimales", ex:[
-        { q:"¿Cómo se lee 0,5?", a:"Cinco décimos, o sea un medio." },
-        { q:"¿Qué es más grande: 0,7 o 0,07?", a:"0,7" },
-        { q:"Escribí en números: “tres coma dos cinco”.", a:"3,25" } ] },
-      { t:"Decimales ↔ fracciones", ex:[
-        { q:"Escribí 0,5 como fracción.", a:"1/2" },
-        { q:"Escribí 1/4 como decimal.", a:"0,25" },
-        { q:"Escribí 0,75 como fracción.", a:"3/4" } ] },
-      { t:"Sumar y restar decimales", ex:[
-        { q:"0,5 + 0,25 =", a:"0,75 (alineá la coma antes de sumar)." },
-        { q:"1,2 + 3,45 =", a:"4,65" },
-        { q:"5 − 2,3 =", a:"2,7" } ] },
-      { t:"Multiplicar y dividir decimales", ex:[
-        { q:"0,5 × 4 =", a:"2" },
-        { q:"2,5 × 2 =", a:"5" },
-        { q:"6 ÷ 0,5 =", a:"12 (dividir por un medio es multiplicar por 2)." } ] }
-    ]},
-    { name:"Porcentajes", note:"De cada cien", lessons:[
-      { t:"¿Qué es un porcentaje?", ex:[
-        { q:"¿Qué significa 50%?", a:"La mitad — 50 de cada 100." },
-        { q:"¿Cuánto es el 100% de algo?", a:"Todo, la cosa entera." },
-        { q:"Escribí 25% como fracción.", a:"1/4" } ] },
-      { t:"Porcentaje de un número", ex:[
-        { q:"¿Cuánto es el 10% de 200?", a:"20" },
-        { q:"¿Cuánto es el 50% de 80?", a:"40" },
-        { q:"¿Cuánto es el 20% de 50?", a:"10" } ] },
-      { t:"Fracciones ↔ decimales ↔ porcentajes", ex:[
-        { q:"Escribí 1/2 como porcentaje.", a:"50%" },
-        { q:"Escribí 0,25 como porcentaje.", a:"25%" },
-        { q:"Escribí 75% como decimal.", a:"0,75" } ] }
-    ]},
-    { name:"Lista para el álgebra", note:"La cima", lessons:[
-      { t:"Orden de las operaciones", ex:[
-        { q:"Resolvé: 2 + 3 × 4", a:"14 (primero el por: 3 × 4 = 12, después 2 + 12)." },
-        { q:"Resolvé: (2 + 3) × 4", a:"20 (primero el paréntesis: 2 + 3 = 5)." },
-        { q:"Resolvé: 10 − 2 × 3", a:"4 (primero 2 × 3 = 6, después 10 − 6)." } ] },
-      { t:"Conocé la variable (x)", ex:[
-        { q:"Si x = 5, ¿cuánto vale x + 3?", a:"8" },
-        { q:"Si x = 4, ¿cuánto vale 2x?", a:"8 (2x quiere decir 2 × x)." },
-        { q:"Escribí “un número más 2” usando x.", a:"x + 2" } ] },
-      { t:"Resolver ecuaciones simples", ex:[
-        { q:"Resolvé: x + 3 = 7", a:"x = 4 (restás 3 de los dos lados)." },
-        { q:"Resolvé: 2x = 10", a:"x = 5 (dividís por 2 los dos lados)." },
-        { q:"Resolvé: x − 4 = 6", a:"x = 10 (sumás 4 de los dos lados)." } ] }
-    ]}
-  ];
-
-  // ---- explicación breve antes de los ejercicios (por id de lección) ----
-  var INTROS = {
-    "0.0":"Cada cifra vale distinto según el lugar que ocupa. En 435, el 4 son 4 centenas (400), el 3 son 3 decenas (30) y el 5 son 5 unidades.",
-    "0.1":"Para saber qué número es más grande, mirás primero la cifra de más a la izquierda. El signo < apunta al más chico y > al más grande.",
-    "0.2":"Redondear es buscar el número “redondo” más cercano. Si la cifra que mirás es 5 o más, subís; si es menor a 5, bajás.",
-    "1.0":"Sumás columna por columna: unidades con unidades, decenas con decenas. Acá ninguna columna pasa de 9, así que sale derecho.",
-    "1.1":"Cuando una columna suma 10 o más, escribís la unidad y “te llevás” la decena a la columna de al lado.",
-    "1.2":"Si el número de arriba es más chico que el de abajo en una columna, le “pedís prestado” 10 a la columna de la izquierda.",
-    "1.3":"Lo difícil no es la cuenta, es darte cuenta qué operación usar. Buscá las palabras clave: “en total” suele ser sumar, “cuánto queda” restar.",
-    "2.0":"Multiplicar es sumar el mismo número varias veces: 7 × 8 es sumar 7 ocho veces. Saber las tablas de memoria te ahorra un montón de tiempo.",
-    "2.1":"Multiplicás cifra por cifra y después sumás los resultados, corriendo cada fila un lugar hacia la izquierda.",
-    "2.2":"Dividir es repartir en partes iguales, o preguntarte “¿cuántas veces entra?”. 56 ÷ 8 es ver cuántas veces entra el 8 en 56.",
-    "2.3":"A veces no reparte justo y queda algo afuera: eso es el resto. 17 ÷ 5 entra 3 veces (15) y sobran 2.",
-    "3.0":"Una fracción es una parte de un entero. El número de abajo (denominador) dice en cuántas partes iguales se dividió; el de arriba (numerador), cuántas tomás.",
-    "3.1":"Dos fracciones son equivalentes si valen lo mismo aunque se escriban distinto. Si multiplicás arriba y abajo por el mismo número, el valor no cambia.",
-    "3.2":"Simplificar es escribir la fracción con números más chicos, dividiendo arriba y abajo por el mismo número hasta que ya no se pueda.",
-    "3.3":"Con el mismo denominador, gana la de numerador más grande. Ojo: con el mismo numerador, cuanto más grande el denominador, más chicos son los pedazos.",
-    "3.4":"Si el número de abajo es igual en las dos, sumás o restás solo los de arriba y el de abajo queda igual.",
-    "3.5":"Primero las igualás: buscás un denominador común, convertís las dos fracciones y recién ahí sumás o restás los de arriba.",
-    "3.6":"Es la más fácil: multiplicás los de arriba entre sí y los de abajo entre sí. No hace falta denominador común.",
-    "3.7":"Para dividir, das vuelta la segunda fracción (la invertís) y multiplicás. Dividir por 1/2 es lo mismo que multiplicar por 2.",
-    "4.0":"La coma separa lo entero de lo que es menos que uno. La primera cifra después de la coma son décimos; la segunda, centésimos.",
-    "4.1":"Los decimales y las fracciones son dos formas de escribir lo mismo: 0,5 y 1/2 son el mismo pedazo, la mitad.",
-    "4.2":"El truco es alinear la coma antes de operar, así cada cifra queda con la de su mismo valor.",
-    "4.3":"Se opera casi como con números enteros y después ubicás la coma en el resultado. Dividir por un decimal chiquito da un resultado grande.",
-    "5.0":"Porcentaje significa “de cada cien”. 50% es 50 de cada 100, o sea la mitad. El símbolo % es esa idea de “/100”.",
-    "5.1":"Atajos para sacar un porcentaje: el 10% es dividir por 10, el 50% es la mitad y el 1% es dividir por 100.",
-    "5.2":"Son tres disfraces de lo mismo: 1/2 = 0,5 = 50%. Saber pasar de uno a otro te hace la vida más fácil.",
-    "6.0":"Cuando hay varias operaciones juntas hay un orden: primero los paréntesis, después multiplicar y dividir, y al final sumar y restar.",
-    "6.1":"Una variable (como x) es una cajita que guarda un número que todavía no sabemos. 2x quiere decir 2 × x.",
-    "6.2":"Resolver es despejar la x: hacés la operación contraria de los dos lados hasta dejar la x sola de un lado."
-  };
-
   var STORE_KEY = "mathjourney.progress.v1";
   var NAME_KEY  = "mathjourney.name.v1";
   var KA = "https://es.khanacademy.org/math";
 
   // ---- grafo de habilidades ----
-  // Las habilidades "construidas" apuntan a lecciones de CURRICULUM con [region, índice].
-  // ref vacío = stub (en construcción): aparece en el mapa pero todavía no se practica.
+  // Cada skill "construida" trae sus lecciones embebidas; lessons vacío = stub (en construcción).
   var STRANDS = [
-    { id:"fundamentos", name:"Fundamentos" },
-    { id:"numero",      name:"Números" },
-    { id:"fracciones",  name:"Fracciones y decimales" },
-    { id:"algebra",     name:"Álgebra" },
-    { id:"funciones",   name:"Funciones" },
-    { id:"geometria",   name:"Geometría" },
-    { id:"calculo",     name:"Cálculo" },
-    { id:"datos",       name:"Datos y azar" }
+    { id:"fundamentos",   name:"Fundamentos" },
+    { id:"enteros",       name:"Números enteros" },
+    { id:"fracciones",    name:"Fracciones" },
+    { id:"decimales",     name:"Decimales" },
+    { id:"porcentajes",   name:"Porcentajes y proporciones" },
+    { id:"potencias",     name:"Potencias y raíces" },
+    { id:"algebra",       name:"Álgebra" },
+    { id:"desigualdades", name:"Desigualdades" },
+    { id:"coordenadas",   name:"Coordenadas y rectas" },
+    { id:"polinomios",    name:"Polinomios y factorización" },
+    { id:"cuadraticas",   name:"Ecuaciones cuadráticas" },
+    { id:"funciones",     name:"Funciones" },
+    { id:"explog",        name:"Exponenciales y logaritmos" },
+    { id:"geometria",     name:"Geometría" },
+    { id:"trigonometria", name:"Trigonometría" },
+    { id:"precalculo",    name:"Precálculo" },
+    { id:"calculo",       name:"Cálculo" },
+    { id:"datos",         name:"Datos y probabilidad" }
   ];
   var strandName = {}; STRANDS.forEach(function(s){ strandName[s.id] = s.name; });
 
-  var SKILLS = [
-    { id:"numeros",       strand:"fundamentos", title:"Números y valor posicional", blurb:"Dónde vive cada número",            prereqs:[],                    ref:[[0,0],[0,1],[0,2]],                       resource:KA },
-    { id:"suma-resta",    strand:"fundamentos", title:"Suma y resta",               blurb:"Juntar y quitar",                   prereqs:["numeros"],           ref:[[1,0],[1,1],[1,2],[1,3]],                 resource:KA },
-    { id:"mult-div",      strand:"fundamentos", title:"Multiplicación y división",  blurb:"Sumar rápido, repartir justo",      prereqs:["suma-resta"],        ref:[[2,0],[2,1],[2,2],[2,3]],                 resource:KA },
-    { id:"orden",         strand:"fundamentos", title:"Orden de las operaciones",   blurb:"Quién va primero",                  prereqs:["mult-div"],          ref:[[6,0]],                                   resource:KA },
-
-    { id:"enteros",       strand:"numero",      title:"Enteros y negativos",        blurb:"Números por debajo del cero",       prereqs:["suma-resta"],        ref:[] },
-    { id:"potencias",     strand:"numero",      title:"Potencias y raíces",         blurb:"Multiplicar algo por sí mismo",     prereqs:["mult-div"],          ref:[] },
-
-    { id:"fracciones",    strand:"fracciones",  title:"Fracciones",                 blurb:"Partes de un entero",               prereqs:["mult-div"],          ref:[[3,0],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7]], resource:KA },
-    { id:"decimales",     strand:"fracciones",  title:"Decimales",                  blurb:"Fracciones disfrazadas",            prereqs:["fracciones"],        ref:[[4,0],[4,1],[4,2],[4,3]],                 resource:KA },
-    { id:"porcentajes",   strand:"fracciones",  title:"Porcentajes y proporciones", blurb:"De cada cien",                      prereqs:["decimales"],         ref:[[5,0],[5,1],[5,2]],                       resource:KA },
-
-    { id:"variables",     strand:"algebra",     title:"Variables y expresiones",    blurb:"Cuando las letras son números",     prereqs:["orden"],             ref:[[6,1]],                                   resource:KA },
-    { id:"ecuaciones",    strand:"algebra",     title:"Ecuaciones de primer grado", blurb:"Despejar la incógnita",             prereqs:["variables"],         ref:[[6,2]],                                   resource:KA },
-    { id:"sistemas",      strand:"algebra",     title:"Sistemas (dos variables)",   blurb:"Dos ecuaciones, dos incógnitas",    prereqs:["ecuaciones"],        ref:[] },
-    { id:"polinomios",    strand:"algebra",     title:"Polinomios y factorización", blurb:"Sumar y multiplicar expresiones",   prereqs:["ecuaciones","potencias"], ref:[] },
-    { id:"cuadraticas",   strand:"algebra",     title:"Ecuaciones cuadráticas",     blurb:"Cuando aparece x²",                 prereqs:["polinomios"],        ref:[] },
-
-    { id:"funciones",     strand:"funciones",   title:"Funciones y gráficos",       blurb:"Máquinas que transforman números",  prereqs:["ecuaciones"],        ref:[] },
-    { id:"recta",         strand:"funciones",   title:"La función lineal",          blurb:"La recta y su pendiente",           prereqs:["funciones"],         ref:[] },
-    { id:"explog",        strand:"funciones",   title:"Exponenciales y logaritmos", blurb:"Crecer muy rápido (y al revés)",    prereqs:["funciones","potencias"], ref:[] },
-
-    { id:"geo-basica",    strand:"geometria",   title:"Perímetro, área y volumen",  blurb:"Medir el espacio",                  prereqs:["mult-div","fracciones"], ref:[] },
-    { id:"pitagoras",     strand:"geometria",   title:"Teorema de Pitágoras",       blurb:"El lado que falta del triángulo",   prereqs:["potencias","geo-basica"], ref:[] },
-    { id:"trigonometria", strand:"geometria",   title:"Trigonometría básica",       blurb:"Ángulos y triángulos",              prereqs:["pitagoras"],         ref:[] },
-
-    { id:"limites",       strand:"calculo",     title:"Límites",                    blurb:"Acercarse sin llegar",              prereqs:["funciones"],         ref:[] },
-    { id:"derivadas",     strand:"calculo",     title:"Derivadas",                  blurb:"Qué tan rápido cambia algo",        prereqs:["limites"],           ref:[] },
-    { id:"integrales",    strand:"calculo",     title:"Integrales",                 blurb:"Sumar infinitos pedacitos",         prereqs:["derivadas"],         ref:[] },
-
-    { id:"probabilidad",  strand:"datos",       title:"Probabilidad y estadística", blurb:"Chances y datos",                   prereqs:["porcentajes"],       ref:[] }
-  ];
+  var SKILLS = [{"id":"numeros","strand":"fundamentos","title":"Números y valor posicional","blurb":"Leer, comparar y ubicar números","prereqs":[],"lessons":[{"t":"Contar y la recta numérica","intro":"Los números tienen un orden. En la recta numérica, a la derecha están los más grandes y a la izquierda los más chicos; cada paso es uno más.","ex":[{"q":"¿Qué número va justo después de 99?","a":"100"},{"q":"¿Qué número está entre 6 y 8?","a":"7"},{"q":"En la recta, ¿cuál está más a la derecha: 14 o 41?","a":"41 (es el más grande)"}]},{"t":"Valor posicional: unidades, decenas, centenas","intro":"Cada cifra vale distinto según el lugar que ocupa. En 435, el 4 son 4 centenas (400), el 3 son 3 decenas (30) y el 5, 5 unidades.","ex":[{"q":"¿Qué valor tiene el 7 en 4.735?","a":"700 (7 centenas)"},{"q":"Escribí el número con 3 centenas, 0 decenas y 6 unidades.","a":"306"},{"q":"¿Cuántas decenas hay en 82?","a":"8 decenas (y 2 unidades)"}]},{"t":"Números grandes: miles y millones","intro":"Después de las centenas vienen los miles y los millones. Se agrupan de a tres cifras con un punto para leerlos fácil: 1.250.000.","ex":[{"q":"¿Cómo se escribe “doce mil quinientos”?","a":"12.500"},{"q":"¿Qué cifra ocupa el lugar de los miles en 3.482?","a":"3 (tres mil)"},{"q":"Leé 1.000.000.","a":"Un millón"}]},{"t":"Comparar y ordenar","intro":"Para comparar mirás primero la cifra de más a la izquierda; si empatan, seguís hacia la derecha. El signo < apunta al más chico y > al más grande.","ex":[{"q":"Poné el signo: 45 __ 54","a":"45 < 54"},{"q":"Ordená de menor a mayor: 23, 9, 31, 17","a":"9, 17, 23, 31"},{"q":"¿Cuál es mayor: 108 o 99?","a":"108"}]},{"t":"Redondear","intro":"Redondear es buscar el número redondo más cercano. Mirás la cifra siguiente: si es 5 o más, subís; si es menor a 5, bajás.","ex":[{"q":"Redondeá 47 a la decena más cercana.","a":"50"},{"q":"Redondeá 123 a la centena más cercana.","a":"100"},{"q":"Redondeá 85 a la decena más cercana.","a":"90"}]}],"resource":"https://es.khanacademy.org/math"},{"id":"suma","strand":"fundamentos","title":"Suma","blurb":"Juntar cantidades","prereqs":["numeros"],"lessons":[{"t":"Sumar sin llevar","intro":"Sumás columna por columna: unidades con unidades, decenas con decenas. Acá ninguna columna pasa de 9, así que sale derecho.","ex":[{"q":"34 + 25 =","a":"59"},{"q":"142 + 36 =","a":"178"},{"q":"61 + 7 =","a":"68"}]},{"t":"Sumar llevando","intro":"Cuando una columna suma 10 o más, escribís la unidad y “te llevás” la decena a la columna de al lado.","ex":[{"q":"48 + 27 =","a":"75"},{"q":"156 + 89 =","a":"245"},{"q":"77 + 58 =","a":"135"}]},{"t":"Sumar números grandes","intro":"El método es el mismo con más columnas: alineás las cifras por la derecha y sumás, llevándote cuando haga falta.","ex":[{"q":"1.234 + 567 =","a":"1.801"},{"q":"2.500 + 2.750 =","a":"5.250"},{"q":"12.340 + 8.660 =","a":"21.000"}]},{"t":"Estrategias mentales","intro":"Para sumar en la cabeza conviene redondear y ajustar: 199 + 48 es como 200 + 48 y después restás 1.","ex":[{"q":"199 + 48 (redondeando)","a":"247"},{"q":"35 + 40 =","a":"75"},{"q":"Sumá las decenas primero: 26 + 53","a":"79"}]},{"t":"Problemas de suma","intro":"Lo importante es reconocer cuándo sumar: cuando juntás cantidades o buscás un total.","ex":[{"q":"Tenés $1.250 y te regalan $800. ¿Cuánto tenés?","a":"$2.050"},{"q":"En una caja hay 24 alfajores y en otra 18. ¿Cuántos en total?","a":"42"},{"q":"Caminaste 3 km a la mañana y 5 a la tarde. ¿Cuánto en total?","a":"8 km"}]}],"resource":"https://es.khanacademy.org/math"},{"id":"resta","strand":"fundamentos","title":"Resta","blurb":"Quitar y comparar","prereqs":["suma"],"lessons":[{"t":"Restar sin pedir prestado","intro":"Restás columna por columna cuando la cifra de arriba es mayor o igual que la de abajo en cada lugar.","ex":[{"q":"68 − 25 =","a":"43"},{"q":"179 − 54 =","a":"125"},{"q":"87 − 6 =","a":"81"}]},{"t":"Restar pidiendo prestado","intro":"Si la cifra de arriba es más chica que la de abajo, le “pedís prestado” 10 a la columna de la izquierda.","ex":[{"q":"52 − 38 =","a":"14"},{"q":"63 − 27 =","a":"36"},{"q":"241 − 87 =","a":"154"}]},{"t":"Restar con ceros","intro":"Cuando hay ceros arriba, el préstamo se pasa en cadena. En 100 − 37 pedís prestado hasta encontrar una cifra distinta de cero.","ex":[{"q":"100 − 37 =","a":"63"},{"q":"200 − 64 =","a":"136"},{"q":"1.000 − 1 =","a":"999"}]},{"t":"Problemas de resta","intro":"Restás cuando buscás cuánto queda, cuánto falta, o la diferencia entre dos cantidades.","ex":[{"q":"Pagás $2.000 por algo de $1.250. ¿El vuelto?","a":"$750"},{"q":"Un micro tiene 40 asientos y 27 ocupados. ¿Cuántos libres?","a":"13"},{"q":"Tenías 15 y perdiste 6. ¿Cuántos quedan?","a":"9"}]}],"resource":"https://es.khanacademy.org/math"},{"id":"multiplicacion","strand":"fundamentos","title":"Multiplicación","blurb":"Sumar rápido, muchas veces","prereqs":["suma"],"lessons":[{"t":"Qué es multiplicar","intro":"Multiplicar es sumar el mismo número varias veces. 4 × 3 es sumar 4 tres veces: 4 + 4 + 4 = 12.","ex":[{"q":"3 × 5 (pensándolo como suma)","a":"15 (5 + 5 + 5)"},{"q":"2 × 6 =","a":"12"},{"q":"4 × 4 =","a":"16"}]},{"t":"Las tablas","intro":"Saber las tablas de memoria te ahorra tiempo en todo lo que viene. Las más difíciles suelen ser las del 6, 7 y 8.","ex":[{"q":"7 × 8 =","a":"56"},{"q":"6 × 9 =","a":"54"},{"q":"4 × 7 =","a":"28"}]},{"t":"Propiedades","intro":"El orden no cambia el resultado (3 × 4 = 4 × 3). Y podés repartir: 3 × (10 + 2) = 3×10 + 3×2. Eso es la propiedad distributiva.","ex":[{"q":"¿3 × 4 da lo mismo que 4 × 3?","a":"Sí, 12 (propiedad conmutativa)"},{"q":"Calculá 6 × 12 usando 6×10 + 6×2","a":"72"},{"q":"5 × (2 × 3) =","a":"30"}]},{"t":"Multiplicar por 10, 100, 1000","intro":"Multiplicar por 10 agrega un cero; por 100, dos ceros; por 1000, tres ceros.","ex":[{"q":"34 × 10 =","a":"340"},{"q":"7 × 100 =","a":"700"},{"q":"12 × 1000 =","a":"12.000"}]},{"t":"Multiplicación de varias cifras","intro":"Multiplicás cifra por cifra y sumás los resultados, corriendo cada fila un lugar hacia la izquierda.","ex":[{"q":"23 × 4 =","a":"92"},{"q":"45 × 12 =","a":"540"},{"q":"134 × 5 =","a":"670"}]},{"t":"Problemas de multiplicación","intro":"Multiplicás cuando repetís la misma cantidad varias veces.","ex":[{"q":"6 cajas con 12 alfajores cada una.","a":"72"},{"q":"Comprás 4 entradas a $1.500 cada una.","a":"$6.000"},{"q":"8 semanas leyendo 1 libro por semana.","a":"8 libros"}]}],"resource":"https://es.khanacademy.org/math"},{"id":"division","strand":"fundamentos","title":"División","blurb":"Repartir en partes iguales","prereqs":["multiplicacion"],"lessons":[{"t":"Qué es dividir","intro":"Dividir es repartir en partes iguales, o preguntarte cuántas veces entra un número en otro. Es lo contrario de multiplicar.","ex":[{"q":"12 ÷ 3 (repartir 12 en 3 grupos)","a":"4"},{"q":"¿Cuántas veces entra el 5 en 20?","a":"4"},{"q":"Si 6 × 4 = 24, ¿cuánto es 24 ÷ 6?","a":"4"}]},{"t":"División básica","intro":"Te apoyás en las tablas al revés: 56 ÷ 8 es preguntarte “8 por cuánto da 56”.","ex":[{"q":"56 ÷ 8 =","a":"7"},{"q":"81 ÷ 9 =","a":"9"},{"q":"72 ÷ 6 =","a":"12"}]},{"t":"División larga","intro":"Para números grandes dividís de a una cifra, de izquierda a derecha, bajando la siguiente cada vez.","ex":[{"q":"144 ÷ 6 =","a":"24"},{"q":"375 ÷ 5 =","a":"75"},{"q":"936 ÷ 4 =","a":"234"}]},{"t":"División con resto","intro":"A veces no reparte justo y queda algo afuera: eso es el resto. 17 ÷ 5 entra 3 veces (15) y sobran 2.","ex":[{"q":"17 ÷ 5 =","a":"3 y sobra 2"},{"q":"29 ÷ 4 =","a":"7 y sobra 1"},{"q":"50 ÷ 7 =","a":"7 y sobra 1"}]},{"t":"Dividir por 10, 100, 1000","intro":"Dividir por 10 saca un cero del final (o corre la coma un lugar a la izquierda).","ex":[{"q":"340 ÷ 10 =","a":"34"},{"q":"700 ÷ 100 =","a":"7"},{"q":"12.000 ÷ 1000 =","a":"12"}]},{"t":"Problemas de división","intro":"Dividís cuando repartís algo en partes iguales o armás grupos del mismo tamaño.","ex":[{"q":"24 alfajores en 6 cajas iguales.","a":"4 por caja"},{"q":"$6.000 entre 4 personas.","a":"$1.500 cada una"},{"q":"45 alumnos en grupos de 5.","a":"9 grupos"}]}],"resource":"https://es.khanacademy.org/math"},{"id":"factores","strand":"fundamentos","title":"Factores, múltiplos y primos","blurb":"Los ladrillos de cada número","prereqs":["multiplicacion","division"],"lessons":[{"t":"Factores de un número","intro":"Los factores (o divisores) de un número son los que lo dividen justo, sin resto. Los factores de 12 son 1, 2, 3, 4, 6 y 12.","ex":[{"q":"¿Cuáles son los factores de 6?","a":"1, 2, 3 y 6"},{"q":"¿Es 4 factor de 20?","a":"Sí (20 ÷ 4 = 5, sin resto)"},{"q":"¿Cuáles son los factores de 10?","a":"1, 2, 5 y 10"}]},{"t":"Múltiplos","intro":"Los múltiplos de un número salen de multiplicarlo por 1, 2, 3… Los múltiplos de 5 son 5, 10, 15, 20…","ex":[{"q":"Escribí los primeros 3 múltiplos de 4.","a":"4, 8 y 12"},{"q":"¿Es 21 múltiplo de 3?","a":"Sí (3 × 7 = 21)"},{"q":"¿Es 30 múltiplo de 5?","a":"Sí (5 × 6 = 30)"}]},{"t":"Reglas de divisibilidad","intro":"Trucos para saber si divide justo sin hacer la cuenta: por 2 si termina en par; por 5 si termina en 0 o 5; por 10 si termina en 0; por 3 si la suma de sus cifras es múltiplo de 3.","ex":[{"q":"¿48 es divisible por 2?","a":"Sí (termina en 8, es par)"},{"q":"¿123 es divisible por 3?","a":"Sí (1+2+3 = 6, múltiplo de 3)"},{"q":"¿90 es divisible por 5 y por 10?","a":"Sí por los dos (termina en 0)"}]},{"t":"Números primos y compuestos","intro":"Un número primo tiene exactamente dos factores: 1 y él mismo (2, 3, 5, 7, 11…). Uno compuesto tiene más. El 1 no es primo.","ex":[{"q":"¿7 es primo?","a":"Sí (solo lo dividen 1 y 7)"},{"q":"¿9 es primo o compuesto?","a":"Compuesto (1, 3 y 9)"},{"q":"¿Qué primos hay entre 10 y 20?","a":"11, 13, 17 y 19"}]},{"t":"Factorización en primos","intro":"Todo número compuesto se puede escribir como un producto de primos. Vas dividiendo por primos hasta llegar a 1: 12 = 2 × 2 × 3.","ex":[{"q":"Factorizá 12 en primos.","a":"2 × 2 × 3"},{"q":"Factorizá 30 en primos.","a":"2 × 3 × 5"},{"q":"Factorizá 18 en primos.","a":"2 × 3 × 3"}]},{"t":"Máximo común divisor (MCD)","intro":"El MCD de dos números es el factor más grande que comparten. Sirve para simplificar fracciones. El MCD de 12 y 18 es 6.","ex":[{"q":"MCD de 8 y 12","a":"4"},{"q":"MCD de 6 y 9","a":"3"},{"q":"MCD de 10 y 15","a":"5"}]},{"t":"Mínimo común múltiplo (mcm)","intro":"El mcm es el múltiplo más chico que comparten dos números. Sirve para sumar fracciones de distinto denominador. El mcm de 4 y 6 es 12.","ex":[{"q":"mcm de 2 y 3","a":"6"},{"q":"mcm de 4 y 6","a":"12"},{"q":"mcm de 3 y 5","a":"15"}]}],"resource":"https://es.khanacademy.org/math"},{"id":"orden","strand":"fundamentos","title":"Orden de las operaciones","blurb":"Quién va primero","prereqs":["division","resta"],"lessons":[{"t":"Por qué hay una jerarquía","intro":"Sin reglas, 2 + 3 × 4 sería confuso. Acordamos un orden para que dé siempre lo mismo: primero paréntesis, después potencias, después × y ÷, y al final + y −.","ex":[{"q":"2 + 3 × 4 =","a":"14 (primero 3 × 4 = 12)"},{"q":"10 − 2 × 3 =","a":"4"},{"q":"1 + 2 × 5 =","a":"11"}]},{"t":"Paréntesis primero","intro":"Lo que está entre paréntesis se resuelve antes que todo lo demás.","ex":[{"q":"(2 + 3) × 4 =","a":"20"},{"q":"(10 − 4) ÷ 2 =","a":"3"},{"q":"2 × (5 + 1) =","a":"12"}]},{"t":"Multiplicación y división (de izquierda a derecha)","intro":"× y ÷ tienen la misma prioridad: se hacen en el orden en que aparecen, de izquierda a derecha.","ex":[{"q":"12 ÷ 3 × 2 =","a":"8 (primero 12 ÷ 3)"},{"q":"20 ÷ 4 ÷ 5 =","a":"1"},{"q":"6 × 2 ÷ 3 =","a":"4"}]},{"t":"Suma y resta (de izquierda a derecha)","intro":"+ y − también van juntas, de izquierda a derecha, y siempre después de × y ÷.","ex":[{"q":"10 − 3 + 2 =","a":"9"},{"q":"8 − 2 − 1 =","a":"5"},{"q":"5 + 6 − 4 =","a":"7"}]},{"t":"Con potencias","intro":"Las potencias van justo después de los paréntesis, antes de × y ÷. Por ejemplo 2 + 3² = 2 + 9 = 11.","ex":[{"q":"2 + 3² =","a":"11"},{"q":"(1 + 2)² =","a":"9"},{"q":"2 × 2³ =","a":"16"}]},{"t":"Expresiones combinadas","intro":"Con todo junto seguís el orden paso a paso: paréntesis, potencias, después × y ÷, y por último + y −.","ex":[{"q":"2 + 3 × (4 − 1) =","a":"11"},{"q":"(6 − 2)² ÷ 4 =","a":"4"},{"q":"10 − 2 × 3 + 1 =","a":"5"}]}],"resource":"https://es.khanacademy.org/math"},{"id":"enteros-recta","strand":"enteros","title":"Enteros y la recta","blurb":"Números por debajo del cero","prereqs":["resta"],"lessons":[]},{"id":"enteros-sumar","strand":"enteros","title":"Sumar y restar enteros","blurb":"Reglas de signos","prereqs":["enteros-recta"],"lessons":[]},{"id":"enteros-multiplicar","strand":"enteros","title":"Multiplicar y dividir enteros","blurb":"Signos al multiplicar","prereqs":["enteros-sumar","multiplicacion"],"lessons":[]},{"id":"enteros-orden","strand":"enteros","title":"Operaciones combinadas con enteros","blurb":"Jerarquía con signos","prereqs":["enteros-multiplicar","orden"],"lessons":[]},{"id":"frac-concepto","strand":"fracciones","title":"¿Qué es una fracción?","blurb":"Partes de un entero","prereqs":["division"],"lessons":[]},{"id":"frac-equivalentes","strand":"fracciones","title":"Fracciones equivalentes","blurb":"La misma cantidad, otra escritura","prereqs":["frac-concepto","factores"],"lessons":[]},{"id":"frac-simplificar","strand":"fracciones","title":"Simplificar fracciones","blurb":"A su mínima expresión","prereqs":["frac-equivalentes"],"lessons":[]},{"id":"frac-comparar","strand":"fracciones","title":"Comparar y ordenar fracciones","blurb":"Cuál es más grande","prereqs":["frac-simplificar"],"lessons":[]},{"id":"frac-suma-igual","strand":"fracciones","title":"Sumar y restar (mismo denominador)","blurb":"","prereqs":["frac-concepto"],"lessons":[]},{"id":"frac-suma-distinto","strand":"fracciones","title":"Sumar y restar (distinto denominador)","blurb":"Usando el mcm","prereqs":["frac-suma-igual","factores"],"lessons":[]},{"id":"frac-multiplicar","strand":"fracciones","title":"Multiplicar fracciones","blurb":"","prereqs":["frac-concepto"],"lessons":[]},{"id":"frac-dividir","strand":"fracciones","title":"Dividir fracciones","blurb":"","prereqs":["frac-multiplicar"],"lessons":[]},{"id":"frac-mixtos","strand":"fracciones","title":"Números mixtos","blurb":"Enteros y fracciones juntos","prereqs":["frac-suma-distinto"],"lessons":[]},{"id":"frac-problemas","strand":"fracciones","title":"Problemas con fracciones","blurb":"De la vida real","prereqs":["frac-dividir","frac-mixtos"],"lessons":[]},{"id":"dec-valor","strand":"decimales","title":"Valor posicional decimal","blurb":"Décimos, centésimos, milésimos","prereqs":["frac-concepto"],"lessons":[]},{"id":"dec-comparar","strand":"decimales","title":"Leer, comparar y redondear","blurb":"","prereqs":["dec-valor"],"lessons":[]},{"id":"dec-sumar","strand":"decimales","title":"Sumar y restar decimales","blurb":"Alineando la coma","prereqs":["dec-comparar"],"lessons":[]},{"id":"dec-multiplicar","strand":"decimales","title":"Multiplicar decimales","blurb":"","prereqs":["dec-sumar","multiplicacion"],"lessons":[]},{"id":"dec-dividir","strand":"decimales","title":"Dividir decimales","blurb":"","prereqs":["dec-multiplicar","division"],"lessons":[]},{"id":"dec-fraccion","strand":"decimales","title":"Fracción ↔ decimal","blurb":"Exactos y periódicos","prereqs":["dec-valor","frac-simplificar"],"lessons":[]},{"id":"razones","strand":"porcentajes","title":"Razones","blurb":"Comparar cantidades","prereqs":["frac-simplificar"],"lessons":[]},{"id":"proporciones","strand":"porcentajes","title":"Proporciones y regla de tres","blurb":"","prereqs":["razones"],"lessons":[]},{"id":"pct-concepto","strand":"porcentajes","title":"¿Qué es un porcentaje?","blurb":"De cada cien","prereqs":["dec-fraccion"],"lessons":[]},{"id":"pct-numero","strand":"porcentajes","title":"Porcentaje de un número","blurb":"","prereqs":["pct-concepto"],"lessons":[]},{"id":"pct-aumentos","strand":"porcentajes","title":"Aumentos y descuentos","blurb":"Subas, rebajas, interés","prereqs":["pct-numero"],"lessons":[]},{"id":"pct-conversion","strand":"porcentajes","title":"Fracción ↔ decimal ↔ porcentaje","blurb":"","prereqs":["pct-concepto","dec-fraccion"],"lessons":[]},{"id":"pot-concepto","strand":"potencias","title":"¿Qué es una potencia?","blurb":"Base y exponente","prereqs":["multiplicacion"],"lessons":[]},{"id":"pot-leyes","strand":"potencias","title":"Leyes de exponentes","blurb":"Producto, cociente, potencia de potencia","prereqs":["pot-concepto"],"lessons":[]},{"id":"pot-cero-neg","strand":"potencias","title":"Exponente 0 y negativos","blurb":"","prereqs":["pot-leyes","enteros-multiplicar"],"lessons":[]},{"id":"raices","strand":"potencias","title":"Raíz cuadrada y cúbica","blurb":"Cuadrados y cubos perfectos","prereqs":["pot-concepto"],"lessons":[]},{"id":"notacion-cientifica","strand":"potencias","title":"Notación científica","blurb":"Números muy grandes o muy chicos","prereqs":["pot-leyes","dec-valor"],"lessons":[]},{"id":"alg-variables","strand":"algebra","title":"Variables y expresiones","blurb":"Cuando las letras son números","prereqs":["orden","enteros-orden"],"lessons":[]},{"id":"alg-traducir","strand":"algebra","title":"Traducir palabras ↔ álgebra","blurb":"","prereqs":["alg-variables"],"lessons":[]},{"id":"alg-semejantes","strand":"algebra","title":"Términos semejantes","blurb":"Combinarlos","prereqs":["alg-variables"],"lessons":[]},{"id":"alg-distributiva","strand":"algebra","title":"Propiedad distributiva con variables","blurb":"a(b + c)","prereqs":["alg-semejantes"],"lessons":[]},{"id":"alg-ec-1","strand":"algebra","title":"Ecuaciones de un paso","blurb":"","prereqs":["alg-variables"],"lessons":[]},{"id":"alg-ec-2","strand":"algebra","title":"Ecuaciones de dos pasos","blurb":"","prereqs":["alg-ec-1"],"lessons":[]},{"id":"alg-ec-multi","strand":"algebra","title":"Ecuaciones multi-paso","blurb":"Variable en ambos lados","prereqs":["alg-ec-2","alg-distributiva"],"lessons":[]},{"id":"alg-despejar","strand":"algebra","title":"Despejar una variable","blurb":"De una fórmula","prereqs":["alg-ec-multi"],"lessons":[]},{"id":"desig-recta","strand":"desigualdades","title":"Desigualdades y la recta","blurb":"","prereqs":["alg-ec-2"],"lessons":[]},{"id":"desig-resolver","strand":"desigualdades","title":"Resolver desigualdades","blurb":"Dar vuelta el signo","prereqs":["desig-recta","enteros-multiplicar"],"lessons":[]},{"id":"plano","strand":"coordenadas","title":"Plano cartesiano","blurb":"Coordenadas (x, y)","prereqs":["enteros-recta"],"lessons":[]},{"id":"rectas-tabla","strand":"coordenadas","title":"Ecuaciones lineales y tablas","blurb":"","prereqs":["plano","alg-ec-1"],"lessons":[]},{"id":"pendiente","strand":"coordenadas","title":"Pendiente","blurb":"Qué tan empinada es la recta","prereqs":["rectas-tabla"],"lessons":[]},{"id":"recta-mb","strand":"coordenadas","title":"La recta: y = mx + b","blurb":"","prereqs":["pendiente"],"lessons":[]},{"id":"graficar-rectas","strand":"coordenadas","title":"Graficar rectas","blurb":"","prereqs":["recta-mb"],"lessons":[]},{"id":"sistemas","strand":"coordenadas","title":"Sistemas de ecuaciones (2 variables)","blurb":"Gráfico, sustitución, eliminación","prereqs":["recta-mb","alg-ec-multi"],"lessons":[]},{"id":"poli-operar","strand":"polinomios","title":"Monomios y polinomios","blurb":"Sumar y restar","prereqs":["alg-semejantes"],"lessons":[]},{"id":"poli-multiplicar","strand":"polinomios","title":"Multiplicar polinomios","blurb":"FOIL","prereqs":["poli-operar","alg-distributiva"],"lessons":[]},{"id":"poli-factor-comun","strand":"polinomios","title":"Factor común","blurb":"","prereqs":["poli-multiplicar","factores"],"lessons":[]},{"id":"poli-trinomios","strand":"polinomios","title":"Factorizar trinomios","blurb":"x² + bx + c","prereqs":["poli-factor-comun"],"lessons":[]},{"id":"poli-dif-cuadrados","strand":"polinomios","title":"Diferencia de cuadrados","blurb":"","prereqs":["poli-multiplicar"],"lessons":[]},{"id":"cuad-factor","strand":"cuadraticas","title":"Resolver por factorización","blurb":"","prereqs":["poli-trinomios"],"lessons":[]},{"id":"cuad-completar","strand":"cuadraticas","title":"Completar el cuadrado","blurb":"","prereqs":["cuad-factor","raices"],"lessons":[]},{"id":"cuad-formula","strand":"cuadraticas","title":"Fórmula cuadrática","blurb":"","prereqs":["cuad-completar"],"lessons":[]},{"id":"parabola","strand":"cuadraticas","title":"La parábola","blurb":"","prereqs":["cuad-formula"],"lessons":[]},{"id":"fn-concepto","strand":"funciones","title":"¿Qué es una función?","blurb":"Dominio, rango, f(x)","prereqs":["alg-variables","plano"],"lessons":[]},{"id":"fn-lineal","strand":"funciones","title":"Función lineal","blurb":"","prereqs":["fn-concepto","recta-mb"],"lessons":[]},{"id":"fn-cuadratica","strand":"funciones","title":"Función cuadrática","blurb":"","prereqs":["fn-concepto","cuad-formula"],"lessons":[]},{"id":"fn-transformaciones","strand":"funciones","title":"Transformaciones","blurb":"Mover y estirar gráficos","prereqs":["fn-cuadratica"],"lessons":[]},{"id":"exponencial","strand":"explog","title":"Función exponencial","blurb":"Crecer muy rápido","prereqs":["pot-cero-neg","fn-concepto"],"lessons":[]},{"id":"logaritmos","strand":"explog","title":"Logaritmos","blurb":"La operación inversa","prereqs":["exponencial"],"lessons":[]},{"id":"explog-ecuaciones","strand":"explog","title":"Ecuaciones exponenciales y logarítmicas","blurb":"","prereqs":["logaritmos"],"lessons":[]},{"id":"geo-angulos","strand":"geometria","title":"Ángulos y líneas","blurb":"","prereqs":["numeros"],"lessons":[]},{"id":"geo-figuras","strand":"geometria","title":"Triángulos y cuadriláteros","blurb":"","prereqs":["geo-angulos"],"lessons":[]},{"id":"geo-perimetro-area","strand":"geometria","title":"Perímetro y área","blurb":"","prereqs":["geo-figuras","multiplicacion"],"lessons":[]},{"id":"geo-circulos","strand":"geometria","title":"Círculos","blurb":"Perímetro y área","prereqs":["geo-perimetro-area","dec-multiplicar"],"lessons":[]},{"id":"geo-volumen","strand":"geometria","title":"Volumen y área superficial","blurb":"","prereqs":["geo-perimetro-area"],"lessons":[]},{"id":"pitagoras","strand":"geometria","title":"Teorema de Pitágoras","blurb":"El lado que falta","prereqs":["raices","geo-perimetro-area"],"lessons":[]},{"id":"trig-razones","strand":"trigonometria","title":"Razones trigonométricas","blurb":"Seno, coseno, tangente","prereqs":["pitagoras"],"lessons":[]},{"id":"trig-rectangulo","strand":"trigonometria","title":"Triángulos rectángulos","blurb":"","prereqs":["trig-razones"],"lessons":[]},{"id":"trig-circulo","strand":"trigonometria","title":"Círculo unitario y radianes","blurb":"","prereqs":["trig-rectangulo"],"lessons":[]},{"id":"trig-identidades","strand":"trigonometria","title":"Identidades básicas","blurb":"","prereqs":["trig-circulo"],"lessons":[]},{"id":"trig-graficos","strand":"trigonometria","title":"Gráficos trigonométricos","blurb":"","prereqs":["trig-circulo","fn-transformaciones"],"lessons":[]},{"id":"racionales","strand":"precalculo","title":"Funciones racionales","blurb":"","prereqs":["poli-factor-comun","fn-concepto"],"lessons":[]},{"id":"sucesiones","strand":"precalculo","title":"Sucesiones y series","blurb":"","prereqs":["fn-concepto"],"lessons":[]},{"id":"intro-limites","strand":"precalculo","title":"Intro a los límites","blurb":"Acercarse sin llegar","prereqs":["racionales","fn-transformaciones"],"lessons":[]},{"id":"limites","strand":"calculo","title":"Límites","blurb":"","prereqs":["intro-limites"],"lessons":[]},{"id":"continuidad","strand":"calculo","title":"Continuidad","blurb":"","prereqs":["limites"],"lessons":[]},{"id":"derivada","strand":"calculo","title":"La derivada","blurb":"Qué tan rápido cambia algo","prereqs":["limites"],"lessons":[]},{"id":"derivada-reglas","strand":"calculo","title":"Reglas de derivación","blurb":"","prereqs":["derivada"],"lessons":[]},{"id":"aplicaciones-derivada","strand":"calculo","title":"Aplicaciones de la derivada","blurb":"Máximos, mínimos, velocidad","prereqs":["derivada-reglas"],"lessons":[]},{"id":"integral","strand":"calculo","title":"La integral","blurb":"Sumar infinitos pedacitos","prereqs":["derivada-reglas"],"lessons":[]},{"id":"tfc","strand":"calculo","title":"Teorema Fundamental del Cálculo","blurb":"","prereqs":["integral"],"lessons":[]},{"id":"estadistica","strand":"datos","title":"Media, mediana y moda","blurb":"","prereqs":["pct-numero"],"lessons":[]},{"id":"graficos-datos","strand":"datos","title":"Gráficos de datos","blurb":"","prereqs":["estadistica"],"lessons":[]},{"id":"probabilidad","strand":"datos","title":"Probabilidad básica","blurb":"Chances","prereqs":["frac-concepto","pct-numero"],"lessons":[]},{"id":"combinatoria","strand":"datos","title":"Combinatoria","blurb":"Contar posibilidades","prereqs":["probabilidad","multiplicacion"],"lessons":[]}];
   var skillById = {}; SKILLS.forEach(function(s){ skillById[s.id] = s; });
 
-  function refLesson(ref){
-    var ri = ref[0], li = ref[1], L = CURRICULUM[ri].lessons[li], id = ri + "." + li;
-    return { id:id, title:L.t, intro:INTROS[id] || "", exercises:L.ex };
-  }
-  function isStub(s){ return s.ref.length === 0; }
-  function skillDoneCount(s){ var c=0; s.ref.forEach(function(r){ if (done[r[0]+"."+r[1]]) c++; }); return c; }
-  function isMastered(s){ return s.ref.length > 0 && skillDoneCount(s) === s.ref.length; }
+  function isStub(s){ return s.lessons.length === 0; }
+  function skillDoneCount(s){ var c=0; s.lessons.forEach(function(_, i){ if (done[s.id+":"+i]) c++; }); return c; }
+  function isMastered(s){ return s.lessons.length > 0 && skillDoneCount(s) === s.lessons.length; }
   function prereqsMet(s){ return s.prereqs.every(function(id){ var p = skillById[id]; return p && isMastered(p); }); }
   function skillState(s){ if (isStub(s)) return "stub"; if (isMastered(s)) return "mastered"; return prereqsMet(s) ? "available" : "locked"; }
   function unmetPrereqTitles(s){
@@ -707,11 +526,11 @@
   // ---- EXP y niveles ----
   // El esfuerzo manda: cada lección vale más cuanto más difícil el tema (tier del strand),
   // y dominar la habilidad entera da un bonus. Todo se deriva del progreso.
-  var STRAND_TIER = { fundamentos:1, numero:2, fracciones:2, algebra:3, funciones:4, geometria:3, calculo:5, datos:3 };
+  var STRAND_TIER = { fundamentos:1, enteros:2, fracciones:2, decimales:2, porcentajes:2, potencias:3, algebra:3, desigualdades:3, coordenadas:4, polinomios:4, cuadraticas:4, funciones:4, explog:5, geometria:3, trigonometria:5, precalculo:5, calculo:6, datos:3 };
   function tierOf(s){ return STRAND_TIER[s.strand] || 1; }
   function xpPerLesson(s){ return 10 * tierOf(s); }
   function masteryBonus(s){ return 20 * tierOf(s); }
-  function skillMaxXp(s){ return s.ref.length * xpPerLesson(s) + masteryBonus(s); }
+  function skillMaxXp(s){ return s.lessons.length * xpPerLesson(s) + masteryBonus(s); }
   function skillEarnedXp(s){ return skillDoneCount(s) * xpPerLesson(s) + (isMastered(s) ? masteryBonus(s) : 0); }
   function totalXp(){ var t=0; SKILLS.forEach(function(s){ if (!isStub(s)) t += skillEarnedXp(s); }); return t; }
 
@@ -755,7 +574,7 @@
     el.className = "skill-card " + st;
     if (interactive) { el.type = "button"; el.addEventListener("click", function(){ openSkill(s); }); }
 
-    var n = s.ref.length, c = skillDoneCount(s);
+    var n = s.lessons.length, c = skillDoneCount(s);
     var badge = st === "mastered" ? '<span class="s-badge done">✓ Dominada</span>'
               : st === "stub"     ? '<span class="s-badge stub">🚧 En construcción</span>'
               : st === "locked"   ? '<span class="s-badge lock">🔒</span>' : "";
@@ -789,7 +608,7 @@
 
     var built = SKILLS.filter(function(s){ return !isStub(s); });
     var totalL = 0, doneL = 0;
-    built.forEach(function(s){ totalL += s.ref.length; doneL += skillDoneCount(s); });
+    built.forEach(function(s){ totalL += s.lessons.length; doneL += skillDoneCount(s); });
     var masteredN = built.filter(isMastered).length;
     var C = 2*Math.PI*46;
     document.getElementById("ringFill").setAttribute("stroke-dashoffset", (C*(1-(totalL?doneL/totalL:0))).toFixed(2));
@@ -830,7 +649,7 @@
   // ---- construir el camino de una habilidad ----
   var items = [], stopEls = [];
   function buildTrail(s){
-    var lessons = s.ref.map(refLesson);
+    var lessons = s.lessons.map(function(L, i){ return { id:s.id+":"+i, title:L.t, intro:L.intro||"", exercises:L.ex }; });
     items = [{ type:"start" }];
     lessons.forEach(function(L, i){ items.push({ type:"lesson", id:L.id, title:L.title, intro:L.intro, exercises:L.exercises, seq:i+1 }); });
     items.push({ type:"summit" });
