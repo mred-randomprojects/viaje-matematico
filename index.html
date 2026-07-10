@@ -864,6 +864,7 @@
   mMark.addEventListener("click", function(){
     if (!current) return;
     var id = current.item.id;
+    var completing = !done[id];
     var prevLevel = levelInfo(totalXp()).level;
     if (done[id]) { delete done[id]; }
     else { done[id] = 1; var d = current.dot; d.classList.remove("pop"); void d.offsetWidth; d.classList.add("pop"); }
@@ -872,6 +873,7 @@
     save();
     updateMarkBtn();
     renderTrail();
+    if (completing) closeModal();  // al completar, cerramos para seguir con la próxima
   });
 
   mClose.addEventListener("click", closeModal);
