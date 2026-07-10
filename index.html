@@ -278,6 +278,30 @@
   .s-bar { height:7px; border-radius:99px; background:var(--paper-2); overflow:hidden; margin-top:4px; }
   .s-bar > i { display:block; height:100%; background:var(--done); border-radius:99px; transition:width .5s ease; }
   .s-count { font-size:.72rem; color:var(--ink-soft); font-variant-numeric:tabular-nums; }
+  .s-tags { display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex:none; }
+  .s-xp { font-size:.64rem; font-weight:700; padding:2px 8px; border-radius:99px; white-space:nowrap; background:var(--paper-2); color:var(--ink-soft); font-variant-numeric:tabular-nums; }
+  .s-xp.earned { background:var(--accent-soft); color:var(--accent-ink); }
+
+  /* ---------- Level / XP ---------- */
+  .level-card {
+    background:var(--surface); border:1px solid var(--line); border-radius:20px;
+    padding:16px 20px; display:flex; align-items:center; gap:16px;
+    box-shadow:0 6px 20px var(--shadow); min-width:236px;
+  }
+  .level-badge {
+    flex:none; width:64px; height:64px; border-radius:16px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:linear-gradient(160deg, var(--accent), color-mix(in srgb, var(--accent) 62%, #c76b12));
+    color:#3a230a; box-shadow:0 6px 16px color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+  .lvl-k { font-family:var(--font-display); font-weight:800; font-size:1.7rem; line-height:1; }
+  .lvl-lbl { font-size:.55rem; letter-spacing:.14em; text-transform:uppercase; font-weight:800; margin-top:2px; opacity:.82; }
+  .level-info { display:flex; flex-direction:column; gap:7px; min-width:150px; flex:1; }
+  .level-title { font-family:var(--font-display); font-weight:800; font-size:1.12rem; letter-spacing:-.01em; }
+  .xp-bar { height:9px; border-radius:99px; background:var(--paper-2); overflow:hidden; }
+  .xp-bar > i { display:block; height:100%; width:0; background:linear-gradient(90deg, var(--accent), var(--done)); border-radius:99px; transition:width .6s cubic-bezier(.4,0,.2,1); }
+  .xp-text { font-size:.74rem; color:var(--ink-soft); font-variant-numeric:tabular-nums; }
+  .xp-text b { color:var(--ink); font-weight:700; }
 
   /* ---------- Trail view chrome ---------- */
   .back-btn {
@@ -314,6 +338,14 @@
       <p class="lede">Elegí una habilidad para practicar. Cuando dominás todas sus lecciones, se desbloquean las que siguen. Lo que está en gris todavía está por construirse — pero ya sabés que viene.</p>
 
       <div class="dash">
+        <div class="level-card">
+          <div class="level-badge"><span class="lvl-k" id="lvlNum">1</span><span class="lvl-lbl">nivel</span></div>
+          <div class="level-info">
+            <div class="level-title" id="lvlTitle">Semillita</div>
+            <div class="xp-bar"><i id="xpFill"></i></div>
+            <div class="xp-text"><b id="xpTotal">0</b> XP · <span id="xpToNext">80 XP para nivel 2</span></div>
+          </div>
+        </div>
         <div class="ring-card">
           <div class="ring">
             <svg width="104" height="104" viewBox="0 0 104 104">
@@ -618,6 +650,26 @@
     return s.prereqs.filter(function(id){ return !isMastered(skillById[id]); }).map(function(id){ return skillById[id].title; });
   }
 
+  // ---- EXP y niveles ----
+  // El esfuerzo manda: cada lección vale más cuanto más difícil el tema (tier del strand),
+  // y dominar la habilidad entera da un bonus. Todo se deriva del progreso.
+  var STRAND_TIER = { fundamentos:1, numero:2, fracciones:2, algebra:3, funciones:4, geometria:3, calculo:5, datos:3 };
+  function tierOf(s){ return STRAND_TIER[s.strand] || 1; }
+  function xpPerLesson(s){ return 10 * tierOf(s); }
+  function masteryBonus(s){ return 20 * tierOf(s); }
+  function skillMaxXp(s){ return s.ref.length * xpPerLesson(s) + masteryBonus(s); }
+  function skillEarnedXp(s){ return skillDoneCount(s) * xpPerLesson(s) + (isMastered(s) ? masteryBonus(s) : 0); }
+  function totalXp(){ var t=0; SKILLS.forEach(function(s){ if (!isStub(s)) t += skillEarnedXp(s); }); return t; }
+
+  var LEVEL_TITLES = ["Semillita","Aprendiz","Exploradora","Aventurera","Estratega","Maestra","Sabia","Leyenda"];
+  function levelTitle(L){ return LEVEL_TITLES[Math.min(L, LEVEL_TITLES.length) - 1]; }
+  function levelInfo(xp){
+    var L=1, cum=0, need=80;
+    while (xp >= cum + need){ cum += need; L++; need = 80 + (L-1)*40; }
+    return { level:L, into: xp - cum, span: need };
+  }
+  var justLeveled = 0;
+
   var done = load();
   var lane = document.getElementById("lane");
   var road = document.getElementById("road");
@@ -660,8 +712,11 @@
     else if (st === "locked") meta = '<span class="s-meta">Primero dominá: ' + unmetPrereqTitles(s).join(", ") + '</span>';
     else meta = '<span class="s-bar"><i style="width:'+(n?c/n*100:0)+'%"></i></span><span class="s-count">'+c+' / '+n+' lecciones</span>';
 
+    var xpChip = isStub(s) ? "" :
+      '<span class="s-xp'+(st==="mastered"?" earned":"")+'">'+
+        (st==="mastered" ? ("★ "+skillMaxXp(s)) : ("+"+skillMaxXp(s)))+' XP</span>';
     el.innerHTML =
-      '<div class="s-top"><span class="s-title">'+s.title+'</span>'+badge+'</div>' +
+      '<div class="s-top"><span class="s-title">'+s.title+'</span><span class="s-tags">'+badge+xpChip+'</span></div>' +
       '<span class="s-blurb">'+s.blurb+'</span>' + meta;
     return el;
   }
@@ -689,6 +744,13 @@
     document.getElementById("ringPct").textContent = (totalL?Math.round(doneL/totalL*100):0)+"%";
     document.getElementById("statDone").textContent = doneL+"/"+totalL;
     document.getElementById("statSkills").textContent = masteredN+"/"+built.length;
+
+    var xp = totalXp(), li = levelInfo(xp);
+    document.getElementById("lvlNum").textContent = li.level;
+    document.getElementById("lvlTitle").textContent = levelTitle(li.level);
+    document.getElementById("xpFill").style.width = (li.span ? (li.into/li.span*100) : 100) + "%";
+    document.getElementById("xpTotal").textContent = xp;
+    document.getElementById("xpToNext").textContent = (li.span - li.into) + " XP para nivel " + (li.level + 1);
   }
 
   // ---- navegación entre vistas ----
@@ -802,8 +864,11 @@
   mMark.addEventListener("click", function(){
     if (!current) return;
     var id = current.item.id;
+    var prevLevel = levelInfo(totalXp()).level;
     if (done[id]) { delete done[id]; }
     else { done[id] = 1; var d = current.dot; d.classList.remove("pop"); void d.offsetWidth; d.classList.add("pop"); }
+    var newLevel = levelInfo(totalXp()).level;
+    justLeveled = (newLevel > prevLevel) ? newLevel : 0;
     save();
     updateMarkBtn();
     renderTrail();
@@ -849,13 +914,14 @@
       var unlocked = SKILLS.filter(function(s){
         return !isStub(s) && s.prereqs.indexOf(currentSkill.id) >= 0 && prereqsMet(s) && !isMastered(s);
       }).map(function(s){ return s.title; });
+      var lvlMsg = justLeveled ? ' 🆙 ¡Subiste a nivel ' + justLeveled + ' — ' + levelTitle(justLeveled) + '!' : '';
       masteryBanner.hidden = false;
-      masteryBanner.innerHTML = unlocked.length
-        ? '🎉 <b>¡Dominaste ' + currentSkill.title + '!</b> Desbloqueaste: ' + unlocked.join(", ") + '.'
-        : '🎉 <b>¡Dominaste ' + currentSkill.title + '!</b>';
+      masteryBanner.innerHTML = '🎉 <b>¡Dominaste ' + currentSkill.title + '!</b> +' + skillMaxXp(currentSkill) + ' XP.' +
+        (unlocked.length ? ' Desbloqueaste: ' + unlocked.join(", ") + '.' : '') + lvlMsg;
     } else {
       masteryBanner.hidden = true;
     }
+    justLeveled = 0;
     drawRoad();
   }
 
