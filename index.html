@@ -302,6 +302,49 @@
   .xp-bar > i { display:block; height:100%; width:0; background:linear-gradient(90deg, var(--accent), var(--done)); border-radius:99px; transition:width .6s cubic-bezier(.4,0,.2,1); }
   .xp-text { font-size:.74rem; color:var(--ink-soft); font-variant-numeric:tabular-nums; }
   .xp-text b { color:var(--ink); font-weight:700; }
+  .level-xp { font-family:var(--font-display); font-weight:800; font-size:1.15rem; letter-spacing:-.01em; color:var(--ink); font-variant-numeric:tabular-nums; }
+
+  /* floating "+X XP" when a lesson is completed */
+  .xp-fly {
+    position:fixed; z-index:60; transform:translate(-50%,-50%);
+    font-family:var(--font-display); font-weight:800; font-size:1.15rem; color:#fff;
+    background:var(--done); padding:6px 13px; border-radius:99px;
+    box-shadow:0 8px 20px color-mix(in srgb, var(--done) 45%, transparent);
+    pointer-events:none; white-space:nowrap;
+    animation:xpFly 1.15s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  @keyframes xpFly {
+    0%   { opacity:0; transform:translate(-50%,-50%) scale(.6); }
+    18%  { opacity:1; transform:translate(-50%,-78%) scale(1.06); }
+    70%  { opacity:1; }
+    100% { opacity:0; transform:translate(-50%,-200%) scale(1); }
+  }
+
+  /* level-up celebration */
+  .levelup-overlay[hidden] { display:none; }
+  .levelup-overlay {
+    position:fixed; inset:0; z-index:70; display:flex; align-items:center; justify-content:center;
+    background:rgba(10,18,14,.55); backdrop-filter:blur(3px); animation:fade .3s ease; cursor:pointer;
+  }
+  .levelup-card { display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center; padding:30px; animation:luPop .55s cubic-bezier(.2,.9,.3,1.35); }
+  .levelup-eyebrow { font-size:.74rem; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); font-weight:800; }
+  .levelup-badge {
+    position:relative; width:118px; height:118px; border-radius:30px; display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-weight:800; font-size:3.3rem; color:#3a230a;
+    background:linear-gradient(160deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #c76b12));
+    box-shadow:0 14px 44px color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+  .levelup-badge::before {
+    content:""; position:absolute; inset:-14px; border-radius:40px;
+    border:3px solid color-mix(in srgb, var(--accent) 60%, transparent); animation:luRing 1.2s ease-out infinite;
+  }
+  @keyframes luRing { 0%{ transform:scale(.92); opacity:.85; } 100%{ transform:scale(1.55); opacity:0; } }
+  .levelup-title { font-family:var(--font-display); font-weight:800; font-size:1.9rem; color:#fff; }
+  .levelup-sub { color:rgba(255,255,255,.82); font-size:1rem; }
+  .levelup-hint { color:rgba(255,255,255,.5); font-size:.78rem; margin-top:8px; }
+  @keyframes luPop { 0%{ opacity:0; transform:scale(.7);} 60%{ opacity:1; transform:scale(1.06);} 100%{ transform:scale(1);} }
+  .confetti { position:fixed; z-index:69; top:-24px; width:9px; height:14px; border-radius:2px; pointer-events:none; }
+  @keyframes confFall { 0%{ opacity:1; } 100%{ opacity:0; transform:translateY(106vh) rotate(760deg); } }
 
   /* ---------- Trail view chrome ---------- */
   .back-btn {
@@ -341,9 +384,9 @@
         <div class="level-card">
           <div class="level-badge"><span class="lvl-k" id="lvlNum">1</span><span class="lvl-lbl">nivel</span></div>
           <div class="level-info">
-            <div class="level-title" id="lvlTitle">Semillita</div>
+            <div class="level-xp"><b id="xpTotal">0</b> XP</div>
             <div class="xp-bar"><i id="xpFill"></i></div>
-            <div class="xp-text"><b id="xpTotal">0</b> XP · <span id="xpToNext">80 XP para nivel 2</span></div>
+            <div class="xp-text" id="xpToNext">80 XP para nivel 2</div>
           </div>
         </div>
         <div class="ring-card">
@@ -422,6 +465,17 @@
     <p class="sheet-sub">Probá de resolverlos y después mirá la respuesta.</p>
     <div class="ex-list" id="mExercises"></div>
     <button class="mark-btn" id="mMark" type="button"></button>
+  </div>
+</div>
+
+<!-- Celebración de subida de nivel -->
+<div class="levelup-overlay" id="levelup" hidden>
+  <div class="levelup-card">
+    <div class="levelup-eyebrow">Subiste de nivel</div>
+    <div class="levelup-badge"><span id="luNum">2</span></div>
+    <div class="levelup-title">Nivel <span id="luLevel">2</span></div>
+    <div class="levelup-sub">¡Buenísimo, seguí así!</div>
+    <div class="levelup-hint">Tocá para continuar</div>
   </div>
 </div>
 
@@ -661,8 +715,6 @@
   function skillEarnedXp(s){ return skillDoneCount(s) * xpPerLesson(s) + (isMastered(s) ? masteryBonus(s) : 0); }
   function totalXp(){ var t=0; SKILLS.forEach(function(s){ if (!isStub(s)) t += skillEarnedXp(s); }); return t; }
 
-  var LEVEL_TITLES = ["Semillita","Aprendiz","Exploradora","Aventurera","Estratega","Maestra","Sabia","Leyenda"];
-  function levelTitle(L){ return LEVEL_TITLES[Math.min(L, LEVEL_TITLES.length) - 1]; }
   function levelInfo(xp){
     var L=1, cum=0, need=80;
     while (xp >= cum + need){ cum += need; L++; need = 80 + (L-1)*40; }
@@ -747,7 +799,6 @@
 
     var xp = totalXp(), li = levelInfo(xp);
     document.getElementById("lvlNum").textContent = li.level;
-    document.getElementById("lvlTitle").textContent = levelTitle(li.level);
     document.getElementById("xpFill").style.width = (li.span ? (li.into/li.span*100) : 100) + "%";
     document.getElementById("xpTotal").textContent = xp;
     document.getElementById("xpToNext").textContent = (li.span - li.into) + " XP para nivel " + (li.level + 1);
@@ -861,19 +912,68 @@
     current = null;
   }
 
+  // ---- animaciones de EXP ----
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function flyXp(amount, anchorEl){
+    if (!anchorEl) return;
+    var r = anchorEl.getBoundingClientRect();
+    var el = document.createElement("div");
+    el.className = "xp-fly";
+    el.textContent = "+" + amount + " XP";
+    el.style.left = (r.left + r.width/2) + "px";
+    el.style.top  = (r.top + r.height/2) + "px";
+    document.body.appendChild(el);
+    setTimeout(function(){ el.remove(); }, 1250);
+  }
+
+  var levelup = document.getElementById("levelup");
+  var luTimer = null;
+  function hideLevelUp(){ levelup.hidden = true; if (luTimer){ clearTimeout(luTimer); luTimer = null; } }
+  function showLevelUp(level){
+    document.getElementById("luNum").textContent = level;
+    document.getElementById("luLevel").textContent = level;
+    levelup.hidden = false;
+    spawnConfetti();
+    if (luTimer) clearTimeout(luTimer);
+    luTimer = setTimeout(hideLevelUp, 2800);
+  }
+  levelup.addEventListener("click", hideLevelUp);
+  function spawnConfetti(){
+    if (reduceMotion) return;
+    var colors = ["#E39A2E","#3E9E6E","#F3F5EF","#EFA63E","#5CC08C"];
+    for (var i=0;i<32;i++){
+      var c = document.createElement("div");
+      c.className = "confetti";
+      c.style.left = (Math.random()*100) + "vw";
+      c.style.background = colors[i % colors.length];
+      var dur = 1.7 + Math.random()*1.2;
+      c.style.transform = "rotate(" + (Math.random()*360) + "deg)";
+      c.style.animation = "confFall " + dur.toFixed(2) + "s linear forwards";
+      document.body.appendChild(c);
+      (function(node, ms){ setTimeout(function(){ node.remove(); }, ms); })(c, dur*1000 + 150);
+    }
+  }
+
   mMark.addEventListener("click", function(){
     if (!current) return;
     var id = current.item.id;
     var completing = !done[id];
+    var dotEl = current.dot;
     var prevLevel = levelInfo(totalXp()).level;
     if (done[id]) { delete done[id]; }
-    else { done[id] = 1; var d = current.dot; d.classList.remove("pop"); void d.offsetWidth; d.classList.add("pop"); }
+    else { done[id] = 1; dotEl.classList.remove("pop"); void dotEl.offsetWidth; dotEl.classList.add("pop"); }
     var newLevel = levelInfo(totalXp()).level;
     justLeveled = (newLevel > prevLevel) ? newLevel : 0;
     save();
     updateMarkBtn();
     renderTrail();
-    if (completing) closeModal();  // al completar, cerramos para seguir con la próxima
+    if (completing){
+      var gained = xpPerLesson(currentSkill);
+      closeModal();  // al completar, cerramos para seguir con la próxima
+      flyXp(gained, dotEl);
+      if (newLevel > prevLevel) setTimeout(function(){ showLevelUp(newLevel); }, 380);
+    }
   });
 
   mClose.addEventListener("click", closeModal);
@@ -916,7 +1016,7 @@
       var unlocked = SKILLS.filter(function(s){
         return !isStub(s) && s.prereqs.indexOf(currentSkill.id) >= 0 && prereqsMet(s) && !isMastered(s);
       }).map(function(s){ return s.title; });
-      var lvlMsg = justLeveled ? ' 🆙 ¡Subiste a nivel ' + justLeveled + ' — ' + levelTitle(justLeveled) + '!' : '';
+      var lvlMsg = justLeveled ? ' 🆙 ¡Subiste a nivel ' + justLeveled + '!' : '';
       masteryBanner.hidden = false;
       masteryBanner.innerHTML = '🎉 <b>¡Dominaste ' + currentSkill.title + '!</b> +' + skillMaxXp(currentSkill) + ' XP.' +
         (unlocked.length ? ' Desbloqueaste: ' + unlocked.join(", ") + '.' : '') + lvlMsg;
