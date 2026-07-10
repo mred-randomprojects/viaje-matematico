@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Un viaje de matemática interactivo: desde contar hasta el álgebra, con ejercicios y progreso que se guarda.">
+<title>Tu Viaje Matemático</title>
+<style>
+  :root {
+    --paper:#F3F5EF; --paper-2:#EBEFE6; --surface:#FBFCF9;
+    --ink:#20302A; --ink-soft:#5A6B62; --line:#DBE2D5; --muted:#AAB4A8;
+    --accent:#E39A2E; --accent-ink:#8A5A0F; --accent-soft:#F7E7C6;
+    --done:#3E9E6E; --done-soft:#D3EBDD; --done-ink:#1E5C40;
+    --road:#DDE3D6; --shadow:rgba(30,50,40,.10);
+    --font-display:"SF Pro Rounded","ui-rounded",-apple-system,"Segoe UI",system-ui,sans-serif;
+    --font-body:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:#14201B; --paper-2:#101A16; --surface:#1C2B24;
+      --ink:#EAF1E9; --ink-soft:#9DB0A6; --line:#2C4136; --muted:#4B5C51;
+      --accent:#F0AC4A; --accent-ink:#F4D9A6; --accent-soft:#3A2E17;
+      --done:#57C089; --done-soft:#1F3B2C; --done-ink:#A9E7C6;
+      --road:#2B3E34; --shadow:rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper:#F3F5EF; --paper-2:#EBEFE6; --surface:#FBFCF9;
+    --ink:#20302A; --ink-soft:#5A6B62; --line:#DBE2D5; --muted:#AAB4A8;
+    --accent:#E39A2E; --accent-ink:#8A5A0F; --accent-soft:#F7E7C6;
+    --done:#3E9E6E; --done-soft:#D3EBDD; --done-ink:#1E5C40;
+    --road:#DDE3D6; --shadow:rgba(30,50,40,.10);
+  }
+  :root[data-theme="dark"] {
+    --paper:#14201B; --paper-2:#101A16; --surface:#1C2B24;
+    --ink:#EAF1E9; --ink-soft:#9DB0A6; --line:#2C4136; --muted:#4B5C51;
+    --accent:#F0AC4A; --accent-ink:#F4D9A6; --accent-soft:#3A2E17;
+    --done:#57C089; --done-soft:#1F3B2C; --done-ink:#A9E7C6;
+    --road:#2B3E34; --shadow:rgba(0,0,0,.35);
+  }
+
+  * { box-sizing:border-box; }
+  body { margin:0; }
+  .page {
+    font-family:var(--font-body); color:var(--ink);
+    background:
+      radial-gradient(1100px 700px at 15% -10%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%),
+      radial-gradient(900px 600px at 95% 8%, color-mix(in srgb, var(--done) 12%, transparent), transparent 55%),
+      var(--paper);
+    min-height:100vh; padding:0 20px 80px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:760px; margin:0 auto; }
+
+  /* ---------- Header ---------- */
+  header { padding:56px 0 8px; text-align:center; }
+  .eyebrow {
+    font-family:var(--font-body); font-size:.72rem; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--ink-soft); margin:0 0 14px; font-weight:600;
+  }
+  h1 {
+    font-family:var(--font-display); font-weight:800; letter-spacing:-.02em;
+    font-size:clamp(2.1rem,6vw,3.1rem); line-height:1.05; margin:0;
+    text-wrap:balance;
+  }
+  .name {
+    color:var(--accent-ink); border-bottom:2px dashed color-mix(in srgb,var(--accent) 55%,transparent);
+    outline:none; padding:0 2px; cursor:text; border-radius:4px;
+  }
+  .name:focus { background:var(--accent-soft); border-bottom-style:solid; }
+  .lede { color:var(--ink-soft); font-size:1.02rem; margin:16px auto 0; max-width:46ch; line-height:1.55; }
+
+  /* ---------- Dashboard ---------- */
+  .dash { display:flex; gap:16px; align-items:stretch; justify-content:center; flex-wrap:wrap; margin:34px 0 8px; }
+  .ring-card {
+    background:var(--surface); border:1px solid var(--line); border-radius:20px;
+    padding:18px 22px; display:flex; align-items:center; gap:18px; box-shadow:0 6px 20px var(--shadow);
+  }
+  .ring { position:relative; width:104px; height:104px; flex:none; }
+  .ring svg { transform:rotate(-90deg); }
+  .ring-track { stroke:var(--line); }
+  .ring-fill { stroke:var(--done); stroke-linecap:round; transition:stroke-dashoffset .6s cubic-bezier(.4,0,.2,1); }
+  .ring-label { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .ring-pct { font-family:var(--font-display); font-weight:800; font-size:1.5rem; font-variant-numeric:tabular-nums; }
+  .ring-sub { font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-soft); margin-top:2px; }
+  .ring-meta { display:flex; flex-direction:column; gap:12px; }
+  .stat .k { font-family:var(--font-display); font-weight:800; font-size:1.35rem; font-variant-numeric:tabular-nums; line-height:1; }
+  .stat .l { font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); margin-top:5px; }
+  .stat .l b { color:var(--accent-ink); font-weight:700; text-transform:none; letter-spacing:0; font-size:.85rem; }
+
+  /* ---------- Trail ---------- */
+  .lane { position:relative; margin:30px auto 0; padding:8px 0 40px; }
+  .road-svg { position:absolute; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; overflow:visible; }
+  .road-base { fill:none; stroke:var(--road); stroke-width:14; stroke-linecap:round; stroke-linejoin:round; }
+  .road-dash { fill:none; stroke:color-mix(in srgb,var(--paper) 70%,var(--road)); stroke-width:3; stroke-linecap:round; stroke-dasharray:1 16; }
+  .road-fill { fill:none; stroke:var(--done); stroke-width:14; stroke-linecap:round; stroke-linejoin:round;
+    filter:drop-shadow(0 2px 6px color-mix(in srgb,var(--done) 40%,transparent)); transition:stroke-dashoffset .7s ease; }
+
+  .stop { position:relative; z-index:1; display:block; width:200px; }
+  .stop.wide { width:100%; }
+
+  .node { display:flex; flex-direction:column; align-items:center; gap:9px; text-align:center; }
+  .dot {
+    width:66px; height:66px; border-radius:50%; border:none; cursor:pointer;
+    background:var(--surface); box-shadow:0 5px 0 var(--line), 0 10px 18px var(--shadow);
+    color:var(--ink-soft); font-family:var(--font-display); font-weight:800; font-size:1.15rem;
+    display:grid; place-items:center; position:relative;
+    transition:transform .12s ease, background .25s ease, color .25s ease, box-shadow .2s ease;
+    font-variant-numeric:tabular-nums;
+  }
+  .dot:hover { transform:translateY(-2px); }
+  .dot:active { transform:translateY(3px); box-shadow:0 2px 0 var(--line), 0 5px 10px var(--shadow); }
+  .dot:focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+  .dot .chk { display:none; font-size:1.6rem; }
+
+  .stop.done .dot {
+    background:var(--done); color:#fff; box-shadow:0 5px 0 var(--done-ink), 0 10px 18px color-mix(in srgb,var(--done) 35%,transparent);
+  }
+  .stop.done .dot .num { display:none; }
+  .stop.done .dot .chk { display:block; }
+  .dot.pop { animation:pop .45s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes pop { 0%{transform:scale(1)} 40%{transform:scale(1.18)} 100%{transform:scale(1)} }
+
+  .stop.next .dot { color:var(--accent-ink); box-shadow:0 5px 0 var(--accent-soft), 0 10px 22px color-mix(in srgb,var(--accent) 30%,transparent); }
+  .stop.next .dot::after {
+    content:""; position:absolute; inset:-7px; border-radius:50%; border:3px solid var(--accent);
+    animation:pulse 1.8s ease-out infinite;
+  }
+  @keyframes pulse { 0%{transform:scale(1);opacity:.9} 70%{transform:scale(1.35);opacity:0} 100%{opacity:0} }
+
+  .label {
+    font-size:.82rem; line-height:1.3; color:var(--ink); max-width:180px;
+    background:var(--surface); border:1px solid var(--line); border-radius:12px;
+    padding:7px 11px; box-shadow:0 3px 10px var(--shadow);
+  }
+  .stop.done .label { color:var(--done-ink); border-color:color-mix(in srgb,var(--done) 40%,var(--line)); background:var(--done-soft); }
+  .stop.next .label { border-color:color-mix(in srgb,var(--accent) 45%,var(--line)); }
+
+  .milestone { text-align:center; padding:6px 0; }
+  .m-inner {
+    display:inline-flex; flex-direction:column; align-items:center; gap:8px;
+    background:var(--surface); border:1px solid var(--line); border-radius:18px;
+    padding:16px 26px; box-shadow:0 6px 20px var(--shadow); max-width:420px; width:100%;
+  }
+  .m-eyebrow { font-size:.64rem; letter-spacing:.16em; text-transform:uppercase; color:var(--accent-ink); font-weight:700; }
+  .m-title { font-family:var(--font-display); font-weight:800; font-size:1.32rem; letter-spacing:-.01em; }
+  .m-note { font-size:.82rem; color:var(--ink-soft); }
+  .m-bar { width:100%; height:8px; border-radius:99px; background:var(--paper-2); overflow:hidden; margin-top:4px; }
+  .m-bar > i { display:block; height:100%; background:var(--done); border-radius:99px; transition:width .6s ease; }
+  .m-count { font-size:.72rem; color:var(--ink-soft); font-variant-numeric:tabular-nums; }
+  .milestone.complete .m-inner { border-color:color-mix(in srgb,var(--done) 45%,var(--line)); }
+  .milestone.complete .m-eyebrow { color:var(--done-ink); }
+
+  .marker { text-align:center; }
+  .marker .badge {
+    width:82px; height:82px; border-radius:50%; display:grid; place-items:center; margin:0 auto 10px;
+    font-size:2.2rem; background:var(--surface); border:2px solid var(--line); box-shadow:0 8px 22px var(--shadow);
+  }
+  .marker.summit .badge { border-color:var(--accent); background:var(--accent-soft); }
+  .marker.summit.reached .badge { border-color:var(--done); background:var(--done-soft); animation:pop .5s cubic-bezier(.34,1.56,.64,1); }
+  .marker .cap { font-family:var(--font-display); font-weight:800; font-size:1.05rem; }
+  .marker .sub { font-size:.8rem; color:var(--ink-soft); margin-top:3px; }
+
+  .foot { text-align:center; margin-top:26px; display:flex; flex-direction:column; align-items:center; gap:14px; }
+  .foot p { color:var(--ink-soft); font-size:.86rem; margin:0; max-width:48ch; line-height:1.5; }
+  .reset {
+    font-family:var(--font-body); font-size:.82rem; color:var(--ink-soft); background:transparent;
+    border:1px solid var(--line); border-radius:99px; padding:8px 16px; cursor:pointer; transition:.2s;
+  }
+  .reset:hover { color:var(--ink); border-color:var(--ink-soft); }
+  .reset:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+
+  /* ---------- Modal / hoja de ejercicios ---------- */
+  .modal[hidden] { display:none; }
+  .modal { position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .scrim { position:absolute; inset:0; background:rgba(15,25,20,.5); backdrop-filter:blur(3px); animation:fade .2s ease; }
+  .sheet {
+    position:relative; background:var(--surface); color:var(--ink);
+    font-family:var(--font-body); border:1px solid var(--line); border-radius:24px;
+    width:100%; max-width:520px; max-height:88vh; overflow-y:auto; padding:28px 26px 24px;
+    box-shadow:0 24px 60px rgba(0,0,0,.28); animation:rise .28s cubic-bezier(.2,.8,.2,1);
+  }
+  .lesson-intro {
+    background:var(--accent-soft); color:var(--ink);
+    border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line)); border-left:4px solid var(--accent);
+    border-radius:12px; padding:12px 14px; font-size:.92rem; line-height:1.5; margin:0 0 16px;
+  }
+  @keyframes fade { from{opacity:0} to{opacity:1} }
+  @keyframes rise { from{opacity:0; transform:translateY(16px) scale(.98)} to{opacity:1; transform:none} }
+  .sheet-close {
+    position:absolute; top:16px; right:16px; width:36px; height:36px; border-radius:50%;
+    border:1px solid var(--line); background:var(--paper); color:var(--ink-soft); font-size:1.3rem;
+    cursor:pointer; line-height:1; display:grid; place-items:center; transition:.2s;
+  }
+  .sheet-close:hover { color:var(--ink); border-color:var(--ink-soft); }
+  .sheet-close:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+  .sheet-eyebrow { font-size:.66rem; letter-spacing:.16em; text-transform:uppercase; color:var(--accent-ink); font-weight:700; }
+  .sheet h2 { font-family:var(--font-display); font-weight:800; font-size:1.5rem; letter-spacing:-.01em; margin:8px 0 4px; padding-right:36px; text-wrap:balance; }
+  .sheet-sub { color:var(--ink-soft); font-size:.86rem; margin:0 0 18px; }
+
+  .ex-list { display:flex; flex-direction:column; gap:12px; }
+  .ex { background:var(--paper); border:1px solid var(--line); border-radius:16px; padding:14px 16px; }
+  .ex-q { display:flex; gap:10px; align-items:flex-start; font-size:1rem; line-height:1.45; }
+  .ex-n {
+    flex:none; width:24px; height:24px; border-radius:50%; background:var(--accent-soft); color:var(--accent-ink);
+    font-family:var(--font-display); font-weight:800; font-size:.82rem; display:grid; place-items:center; margin-top:1px;
+  }
+  .reveal {
+    margin-top:11px; font-family:var(--font-body); font-size:.82rem; font-weight:600; color:var(--done-ink);
+    background:var(--done-soft); border:1px solid color-mix(in srgb,var(--done) 30%,var(--line));
+    border-radius:99px; padding:6px 14px; cursor:pointer; transition:.15s;
+  }
+  .reveal:hover { filter:brightness(.97); }
+  .reveal:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+  .ex-a[hidden] { display:none; }
+  .ex-a {
+    margin-top:10px; padding:10px 12px; border-radius:12px; background:var(--done-soft); color:var(--done-ink);
+    font-size:.95rem; line-height:1.4; border:1px dashed color-mix(in srgb,var(--done) 40%,var(--line));
+  }
+  .ex-a b { font-family:var(--font-display); }
+
+  .mark-btn {
+    margin-top:22px; width:100%; font-family:var(--font-display); font-weight:800; font-size:1rem;
+    color:#fff; background:var(--done); border:none; border-radius:14px; padding:14px; cursor:pointer;
+    box-shadow:0 4px 0 var(--done-ink); transition:transform .1s ease, filter .2s;
+  }
+  .mark-btn:hover { filter:brightness(1.04); }
+  .mark-btn:active { transform:translateY(3px); box-shadow:0 1px 0 var(--done-ink); }
+  .mark-btn:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+  .mark-btn.is-done { background:var(--surface); color:var(--ink-soft); box-shadow:0 4px 0 var(--line); border:1px solid var(--line); }
+
+  @media (max-width:520px) {
+    .label { max-width:150px; font-size:.78rem; }
+    .stop { width:160px; }
+    .ring-card { padding:16px; }
+    .modal { padding:0; align-items:flex-end; }
+    .sheet { max-width:none; border-radius:24px 24px 0 0; max-height:90vh; animation:riseSheet .3s cubic-bezier(.2,.8,.2,1); }
+    @keyframes riseSheet { from{transform:translateY(100%)} to{transform:none} }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">Un viaje matemático para</p>
+      <h1><span class="name" id="name" contenteditable="true" spellcheck="false">vos</span> 💚</h1>
+      <p class="lede">Un pasito a la vez, desde contar hasta la puerta del álgebra. Tocá una parada para ver los ejercicios y marcala cuando la tengas — el camino se pone verde detrás tuyo así ves todo lo que avanzaste.</p>
+
+      <div class="dash">
+        <div class="ring-card">
+          <div class="ring">
+            <svg width="104" height="104" viewBox="0 0 104 104">
+              <circle class="ring-track" cx="52" cy="52" r="46" fill="none" stroke-width="10"></circle>
+              <circle class="ring-fill" id="ringFill" cx="52" cy="52" r="46" fill="none" stroke-width="10"
+                      stroke-dasharray="289.03" stroke-dashoffset="289.03"></circle>
+            </svg>
+            <div class="ring-label"><span class="ring-pct" id="ringPct">0%</span><span class="ring-sub">Hecho</span></div>
+          </div>
+          <div class="ring-meta">
+            <div class="stat"><div class="k" id="statDone">0/0</div><div class="l">Lecciones terminadas</div></div>
+            <div class="stat"><div class="k" id="statRegion" style="font-size:1rem">—</div><div class="l">Estás acá <b id="statRegionName"></b></div></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="lane" id="lane" aria-label="Tu camino de aprendizaje">
+      <svg class="road-svg" id="road" aria-hidden="true">
+        <path class="road-base" id="roadBase" d=""></path>
+        <path class="road-dash" id="roadDash" d=""></path>
+        <path class="road-fill" id="roadFill" d=""></path>
+      </svg>
+    </main>
+
+    <div class="foot">
+      <p>Todo lo que tocás se guarda solo en este dispositivo — cerralo y volvé cuando quieras, tu progreso te va a estar esperando.</p>
+      <button class="reset" id="reset" type="button">Empezar de nuevo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hoja de ejercicios -->
+<div class="modal" id="modal" hidden>
+  <div class="scrim" id="scrim"></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <button class="sheet-close" id="mClose" type="button" aria-label="Cerrar">×</button>
+    <span class="sheet-eyebrow" id="mEyebrow"></span>
+    <h2 id="mTitle"></h2>
+    <div class="lesson-intro" id="mIntro"></div>
+    <p class="sheet-sub">Probá de resolverlos y después mirá la respuesta.</p>
+    <div class="ex-list" id="mExercises"></div>
+    <button class="mark-btn" id="mMark" type="button"></button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CURRICULUM = [
+    { name:"Números y valor posicional", note:"Dónde vive cada número", lessons:[
+      { t:"Valor posicional: unidades, decenas, centenas", ex:[
+        { q:"¿Qué valor tiene el 7 en el número 4.735?", a:"7 centenas, o sea 700." },
+        { q:"Escribí el número que tiene 3 centenas, 0 decenas y 6 unidades.", a:"306" },
+        { q:"¿Cuántas decenas hay en 82?", a:"8 decenas (y 2 unidades sueltas)." } ] },
+      { t:"Comparar y ordenar números", ex:[
+        { q:"Poné el signo correcto: 45 __ 54", a:"45 < 54" },
+        { q:"Ordená de menor a mayor: 23, 9, 31, 17", a:"9, 17, 23, 31" },
+        { q:"¿Cuál es más grande: 108 o 99?", a:"108" } ] },
+      { t:"Redondear números", ex:[
+        { q:"Redondeá 47 a la decena más cercana.", a:"50" },
+        { q:"Redondeá 123 a la centena más cercana.", a:"100" },
+        { q:"Redondeá 85 a la decena más cercana.", a:"90 (el 5 redondea para arriba)." } ] }
+    ]},
+    { name:"Suma y resta", note:"Juntar y quitar", lessons:[
+      { t:"Sumar sin llevarse", ex:[
+        { q:"34 + 25 =", a:"59" }, { q:"142 + 36 =", a:"178" }, { q:"61 + 7 =", a:"68" } ] },
+      { t:"Sumar llevándose", ex:[
+        { q:"48 + 27 =", a:"75" }, { q:"156 + 89 =", a:"245" }, { q:"77 + 58 =", a:"135" } ] },
+      { t:"Restar pidiendo prestado", ex:[
+        { q:"52 − 38 =", a:"14" }, { q:"100 − 64 =", a:"36" }, { q:"205 − 87 =", a:"118" } ] },
+      { t:"Problemas de todos los días", ex:[
+        { q:"En el súper gastás $1.250 y pagás con $2.000. ¿Cuánto te dan de vuelto?", a:"$750" },
+        { q:"Tenés 3 paquetes con 6 facturas cada uno. ¿Cuántas facturas hay en total?", a:"18 facturas (3 × 6)." },
+        { q:"Un colectivo tiene 40 asientos y hay 27 ocupados. ¿Cuántos quedan libres?", a:"13 asientos." } ] }
+    ]},
+    { name:"Multiplicación y división", note:"Sumar rápido, repartir justo", lessons:[
+      { t:"Tablas de multiplicar", ex:[
+        { q:"7 × 8 =", a:"56" }, { q:"6 × 9 =", a:"54" }, { q:"4 × 7 =", a:"28" } ] },
+      { t:"Multiplicación de varias cifras", ex:[
+        { q:"23 × 4 =", a:"92" }, { q:"45 × 12 =", a:"540" }, { q:"134 × 5 =", a:"670" } ] },
+      { t:"División básica", ex:[
+        { q:"56 ÷ 8 =", a:"7" }, { q:"81 ÷ 9 =", a:"9" }, { q:"72 ÷ 6 =", a:"12" } ] },
+      { t:"División con resto", ex:[
+        { q:"17 ÷ 5 =", a:"3 y sobra 2 (3 × 5 = 15, faltan 2)." },
+        { q:"29 ÷ 4 =", a:"7 y sobra 1." },
+        { q:"50 ÷ 7 =", a:"7 y sobra 1." } ] }
+    ]},
+    { name:"Fracciones", note:"Partes de un entero — la más importante", lessons:[
+      { t:"¿Qué es una fracción?", ex:[
+        { q:"En 3/4, ¿cuál es el numerador y cuál el denominador?", a:"Numerador 3 (arriba), denominador 4 (abajo)." },
+        { q:"Dividís una pizza en 8 porciones y comés 3. ¿Qué fracción comiste?", a:"3/8" },
+        { q:"De 5 partes iguales hay 2 pintadas. ¿Qué fracción está pintada?", a:"2/5" } ] },
+      { t:"Fracciones equivalentes", ex:[
+        { q:"Completá: 1/2 = ?/6", a:"3/6 (multiplicás arriba y abajo por 3)." },
+        { q:"¿2/4 es lo mismo que 1/2?", a:"Sí, son equivalentes." },
+        { q:"Escribí una fracción equivalente a 3/5 multiplicando por 2.", a:"6/10" } ] },
+      { t:"Simplificar fracciones", ex:[
+        { q:"Simplificá 4/8", a:"1/2 (dividís arriba y abajo por 4)." },
+        { q:"Simplificá 6/9", a:"2/3 (dividís por 3)." },
+        { q:"Simplificá 10/15", a:"2/3 (dividís por 5)." } ] },
+      { t:"Comparar fracciones", ex:[
+        { q:"¿Cuál es más grande: 1/2 o 1/3?", a:"1/2 (mientras más grande el de abajo, más chicos los pedazos)." },
+        { q:"¿Cuál es más grande: 3/4 o 2/4?", a:"3/4" },
+        { q:"Ordená de menor a mayor: 1/4, 1/2, 1/8", a:"1/8, 1/4, 1/2" } ] },
+      { t:"Sumar y restar (mismo denominador)", ex:[
+        { q:"1/5 + 2/5 =", a:"3/5 (sumás los de arriba, el de abajo queda igual)." },
+        { q:"4/7 − 2/7 =", a:"2/7" },
+        { q:"3/8 + 3/8 =", a:"6/8, que simplificado es 3/4." } ] },
+      { t:"Sumar y restar (distinto denominador)", ex:[
+        { q:"1/2 + 1/4 =", a:"3/4 (pasás 1/2 a 2/4 y sumás)." },
+        { q:"2/3 + 1/6 =", a:"5/6 (pasás 2/3 a 4/6 y sumás)." },
+        { q:"3/4 − 1/2 =", a:"1/4 (pasás 1/2 a 2/4 y restás)." } ] },
+      { t:"Multiplicar fracciones", ex:[
+        { q:"1/2 × 3/4 =", a:"3/8 (multiplicás arriba con arriba y abajo con abajo)." },
+        { q:"2/3 × 3/5 =", a:"6/15, que simplificado es 2/5." },
+        { q:"1/2 × 1/2 =", a:"1/4" } ] },
+      { t:"Dividir fracciones", ex:[
+        { q:"1/2 ÷ 1/4 =", a:"2 (das vuelta la segunda y multiplicás: 1/2 × 4/1 = 4/2)." },
+        { q:"3/4 ÷ 1/2 =", a:"3/2, o sea 1 y 1/2." },
+        { q:"2/3 ÷ 2/3 =", a:"1 (cualquier cosa dividida por sí misma da 1)." } ] }
+    ]},
+    { name:"Decimales", note:"Fracciones disfrazadas", lessons:[
+      { t:"Leer decimales", ex:[
+        { q:"¿Cómo se lee 0,5?", a:"Cinco décimos, o sea un medio." },
+        { q:"¿Qué es más grande: 0,7 o 0,07?", a:"0,7" },
+        { q:"Escribí en números: “tres coma dos cinco”.", a:"3,25" } ] },
+      { t:"Decimales ↔ fracciones", ex:[
+        { q:"Escribí 0,5 como fracción.", a:"1/2" },
+        { q:"Escribí 1/4 como decimal.", a:"0,25" },
+        { q:"Escribí 0,75 como fracción.", a:"3/4" } ] },
+      { t:"Sumar y restar decimales", ex:[
+        { q:"0,5 + 0,25 =", a:"0,75 (alineá la coma antes de sumar)." },
+        { q:"1,2 + 3,45 =", a:"4,65" },
+        { q:"5 − 2,3 =", a:"2,7" } ] },
+      { t:"Multiplicar y dividir decimales", ex:[
+        { q:"0,5 × 4 =", a:"2" },
+        { q:"2,5 × 2 =", a:"5" },
+        { q:"6 ÷ 0,5 =", a:"12 (dividir por un medio es multiplicar por 2)." } ] }
+    ]},
+    { name:"Porcentajes", note:"De cada cien", lessons:[
+      { t:"¿Qué es un porcentaje?", ex:[
+        { q:"¿Qué significa 50%?", a:"La mitad — 50 de cada 100." },
+        { q:"¿Cuánto es el 100% de algo?", a:"Todo, la cosa entera." },
+        { q:"Escribí 25% como fracción.", a:"1/4" } ] },
+      { t:"Porcentaje de un número", ex:[
+        { q:"¿Cuánto es el 10% de 200?", a:"20" },
+        { q:"¿Cuánto es el 50% de 80?", a:"40" },
+        { q:"¿Cuánto es el 20% de 50?", a:"10" } ] },
+      { t:"Fracciones ↔ decimales ↔ porcentajes", ex:[
+        { q:"Escribí 1/2 como porcentaje.", a:"50%" },
+        { q:"Escribí 0,25 como porcentaje.", a:"25%" },
+        { q:"Escribí 75% como decimal.", a:"0,75" } ] }
+    ]},
+    { name:"Lista para el álgebra", note:"La cima", lessons:[
+      { t:"Orden de las operaciones", ex:[
+        { q:"Resolvé: 2 + 3 × 4", a:"14 (primero el por: 3 × 4 = 12, después 2 + 12)." },
+        { q:"Resolvé: (2 + 3) × 4", a:"20 (primero el paréntesis: 2 + 3 = 5)." },
+        { q:"Resolvé: 10 − 2 × 3", a:"4 (primero 2 × 3 = 6, después 10 − 6)." } ] },
+      { t:"Conocé la variable (x)", ex:[
+        { q:"Si x = 5, ¿cuánto vale x + 3?", a:"8" },
+        { q:"Si x = 4, ¿cuánto vale 2x?", a:"8 (2x quiere decir 2 × x)." },
+        { q:"Escribí “un número más 2” usando x.", a:"x + 2" } ] },
+      { t:"Resolver ecuaciones simples", ex:[
+        { q:"Resolvé: x + 3 = 7", a:"x = 4 (restás 3 de los dos lados)." },
+        { q:"Resolvé: 2x = 10", a:"x = 5 (dividís por 2 los dos lados)." },
+        { q:"Resolvé: x − 4 = 6", a:"x = 10 (sumás 4 de los dos lados)." } ] }
+    ]}
+  ];
+
+  // ---- explicación breve antes de los ejercicios (por id de lección) ----
+  var INTROS = {
+    "0.0":"Cada cifra vale distinto según el lugar que ocupa. En 435, el 4 son 4 centenas (400), el 3 son 3 decenas (30) y el 5 son 5 unidades.",
+    "0.1":"Para saber qué número es más grande, mirás primero la cifra de más a la izquierda. El signo < apunta al más chico y > al más grande.",
+    "0.2":"Redondear es buscar el número “redondo” más cercano. Si la cifra que mirás es 5 o más, subís; si es menor a 5, bajás.",
+    "1.0":"Sumás columna por columna: unidades con unidades, decenas con decenas. Acá ninguna columna pasa de 9, así que sale derecho.",
+    "1.1":"Cuando una columna suma 10 o más, escribís la unidad y “te llevás” la decena a la columna de al lado.",
+    "1.2":"Si el número de arriba es más chico que el de abajo en una columna, le “pedís prestado” 10 a la columna de la izquierda.",
+    "1.3":"Lo difícil no es la cuenta, es darte cuenta qué operación usar. Buscá las palabras clave: “en total” suele ser sumar, “cuánto queda” restar.",
+    "2.0":"Multiplicar es sumar el mismo número varias veces: 7 × 8 es sumar 7 ocho veces. Saber las tablas de memoria te ahorra un montón de tiempo.",
+    "2.1":"Multiplicás cifra por cifra y después sumás los resultados, corriendo cada fila un lugar hacia la izquierda.",
+    "2.2":"Dividir es repartir en partes iguales, o preguntarte “¿cuántas veces entra?”. 56 ÷ 8 es ver cuántas veces entra el 8 en 56.",
+    "2.3":"A veces no reparte justo y queda algo afuera: eso es el resto. 17 ÷ 5 entra 3 veces (15) y sobran 2.",
+    "3.0":"Una fracción es una parte de un entero. El número de abajo (denominador) dice en cuántas partes iguales se dividió; el de arriba (numerador), cuántas tomás.",
+    "3.1":"Dos fracciones son equivalentes si valen lo mismo aunque se escriban distinto. Si multiplicás arriba y abajo por el mismo número, el valor no cambia.",
+    "3.2":"Simplificar es escribir la fracción con números más chicos, dividiendo arriba y abajo por el mismo número hasta que ya no se pueda.",
+    "3.3":"Con el mismo denominador, gana la de numerador más grande. Ojo: con el mismo numerador, cuanto más grande el denominador, más chicos son los pedazos.",
+    "3.4":"Si el número de abajo es igual en las dos, sumás o restás solo los de arriba y el de abajo queda igual.",
+    "3.5":"Primero las igualás: buscás un denominador común, convertís las dos fracciones y recién ahí sumás o restás los de arriba.",
+    "3.6":"Es la más fácil: multiplicás los de arriba entre sí y los de abajo entre sí. No hace falta denominador común.",
+    "3.7":"Para dividir, das vuelta la segunda fracción (la invertís) y multiplicás. Dividir por 1/2 es lo mismo que multiplicar por 2.",
+    "4.0":"La coma separa lo entero de lo que es menos que uno. La primera cifra después de la coma son décimos; la segunda, centésimos.",
+    "4.1":"Los decimales y las fracciones son dos formas de escribir lo mismo: 0,5 y 1/2 son el mismo pedazo, la mitad.",
+    "4.2":"El truco es alinear la coma antes de operar, así cada cifra queda con la de su mismo valor.",
+    "4.3":"Se opera casi como con números enteros y después ubicás la coma en el resultado. Dividir por un decimal chiquito da un resultado grande.",
+    "5.0":"Porcentaje significa “de cada cien”. 50% es 50 de cada 100, o sea la mitad. El símbolo % es esa idea de “/100”.",
+    "5.1":"Atajos para sacar un porcentaje: el 10% es dividir por 10, el 50% es la mitad y el 1% es dividir por 100.",
+    "5.2":"Son tres disfraces de lo mismo: 1/2 = 0,5 = 50%. Saber pasar de uno a otro te hace la vida más fácil.",
+    "6.0":"Cuando hay varias operaciones juntas hay un orden: primero los paréntesis, después multiplicar y dividir, y al final sumar y restar.",
+    "6.1":"Una variable (como x) es una cajita que guarda un número que todavía no sabemos. 2x quiere decir 2 × x.",
+    "6.2":"Resolver es despejar la x: hacés la operación contraria de los dos lados hasta dejar la x sola de un lado."
+  };
+
+  var STORE_KEY = "mathjourney.progress.v1";
+  var NAME_KEY  = "mathjourney.name.v1";
+
+  var done = load();
+  var lane = document.getElementById("lane");
+  var road = document.getElementById("road");
+  var roadBase = document.getElementById("roadBase");
+  var roadDash = document.getElementById("roadDash");
+  var roadFill = document.getElementById("roadFill");
+
+  // ---- modelo: lista ordenada de items ----
+  var items = [];
+  items.push({ type:"start" });
+  var totalLessons = 0, seq = 0;
+  CURRICULUM.forEach(function(region, ri){
+    items.push({ type:"milestone", region:ri });
+    region.lessons.forEach(function(lesson, li){
+      seq++;
+      items.push({ type:"lesson", region:ri, id:ri+"."+li, title:lesson.t, exercises:lesson.ex, seq:seq });
+      totalLessons++;
+    });
+  });
+  items.push({ type:"summit" });
+
+  // ---- render de las paradas ----
+  var stopEls = [];
+  var dotById = {};
+  items.forEach(function(it){
+    var el = document.createElement("div");
+    el.className = "stop";
+    if (it.type === "lesson") {
+      el.dataset.type = "lesson"; el.dataset.id = it.id;
+      el.innerHTML =
+        '<div class="node">' +
+          '<button class="dot" type="button">' +
+            '<span class="num">'+it.seq+'</span><span class="chk" aria-hidden="true">✓</span>' +
+          '</button>' +
+          '<div class="label">'+it.title+'</div>' +
+        '</div>';
+      var btn = el.querySelector(".dot");
+      btn.setAttribute("aria-label", "Lección: " + it.title);
+      dotById[it.id] = btn;
+      btn.addEventListener("click", function(){ openModal(it, btn); });
+    } else if (it.type === "milestone") {
+      el.className = "stop wide milestone"; el.dataset.type = "milestone"; el.dataset.region = it.region;
+      var r = CURRICULUM[it.region];
+      el.innerHTML =
+        '<div class="m-inner">' +
+          '<span class="m-eyebrow">Tema '+(it.region+1)+' de '+CURRICULUM.length+'</span>' +
+          '<span class="m-title">'+r.name+'</span>' +
+          '<span class="m-note">'+r.note+'</span>' +
+          '<span class="m-bar"><i style="width:0%"></i></span>' +
+          '<span class="m-count">0 / '+r.lessons.length+'</span>' +
+        '</div>';
+    } else if (it.type === "start") {
+      el.className = "stop wide marker"; el.dataset.type = "start";
+      el.innerHTML = '<div class="badge">🌱</div><div class="cap">Empezá acá</div><div class="sub">Sin apuro. Los pasos chicos cuentan.</div>';
+    } else {
+      el.className = "stop wide marker summit"; el.dataset.type = "summit";
+      el.innerHTML = '<div class="badge">⭐</div><div class="cap">¡Lo lograste!</div><div class="sub">Lista para el álgebra de verdad.</div>';
+    }
+    lane.appendChild(el);
+    stopEls.push(el);
+  });
+
+  // ---- nombre ----
+  var nameEl = document.getElementById("name");
+  var savedName = localStorage.getItem(NAME_KEY);
+  if (savedName) nameEl.textContent = savedName;
+  nameEl.addEventListener("blur", function(){
+    var v = nameEl.textContent.trim();
+    if (!v) { v = "vos"; nameEl.textContent = v; }
+    try { localStorage.setItem(NAME_KEY, v); } catch(e){}
+  });
+  nameEl.addEventListener("keydown", function(e){ if (e.key === "Enter"){ e.preventDefault(); nameEl.blur(); } });
+
+  // ---- estado ----
+  function load(){ try { var raw = localStorage.getItem(STORE_KEY); return raw ? JSON.parse(raw) : {}; } catch(e){ return {}; } }
+  function save(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(done)); } catch(e){} }
+
+  // ---- modal de ejercicios ----
+  var modal = document.getElementById("modal");
+  var mEyebrow = document.getElementById("mEyebrow");
+  var mTitle = document.getElementById("mTitle");
+  var mIntro = document.getElementById("mIntro");
+  var mExercises = document.getElementById("mExercises");
+  var mMark = document.getElementById("mMark");
+  var mClose = document.getElementById("mClose");
+  var current = null, lastFocus = null;
+
+  function openModal(it, btn){
+    current = { item: it, dot: btn };
+    lastFocus = btn;
+    mEyebrow.textContent = "Tema " + (it.region+1) + " · " + CURRICULUM[it.region].name;
+    mTitle.textContent = it.title;
+    mIntro.textContent = INTROS[it.id] || "";
+    mIntro.style.display = INTROS[it.id] ? "" : "none";
+    mExercises.innerHTML = "";
+    it.exercises.forEach(function(ex, i){
+      var wrap = document.createElement("div");
+      wrap.className = "ex";
+      wrap.innerHTML =
+        '<div class="ex-q"><span class="ex-n">'+(i+1)+'</span><span>'+ex.q+'</span></div>' +
+        '<button class="reveal" type="button">Ver respuesta</button>' +
+        '<div class="ex-a" hidden><b>Respuesta:</b> '+ex.a+'</div>';
+      var rb = wrap.querySelector(".reveal");
+      var ans = wrap.querySelector(".ex-a");
+      rb.addEventListener("click", function(){
+        var show = ans.hasAttribute("hidden");
+        if (show){ ans.removeAttribute("hidden"); rb.textContent = "Ocultar respuesta"; }
+        else { ans.setAttribute("hidden",""); rb.textContent = "Ver respuesta"; }
+      });
+      mExercises.appendChild(wrap);
+    });
+    updateMarkBtn();
+    modal.hidden = false;
+    document.body.style.overflow = "hidden";
+    mClose.focus();
+  }
+
+  function updateMarkBtn(){
+    var isDone = !!done[current.item.id];
+    mMark.textContent = isDone ? "✓ Completada — tocá para desmarcar" : "Marcar como completada";
+    mMark.classList.toggle("is-done", isDone);
+  }
+
+  function closeModal(){
+    modal.hidden = true;
+    document.body.style.overflow = "";
+    if (lastFocus) lastFocus.focus();
+    current = null;
+  }
+
+  mMark.addEventListener("click", function(){
+    if (!current) return;
+    var id = current.item.id;
+    if (done[id]) { delete done[id]; }
+    else { done[id] = 1; var d = current.dot; d.classList.remove("pop"); void d.offsetWidth; d.classList.add("pop"); }
+    save();
+    updateMarkBtn();
+    render();
+  });
+
+  mClose.addEventListener("click", closeModal);
+  document.getElementById("scrim").addEventListener("click", closeModal);
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape" && !modal.hidden) closeModal(); });
+
+  document.getElementById("reset").addEventListener("click", function(){
+    if (confirm("¿Borrar todo el progreso y empezar de cero?")) { done = {}; save(); render(); }
+  });
+
+  // ---- render de estado ----
+  function render(){
+    var nextId = null;
+    for (var i=0;i<items.length;i++){ if (items[i].type==="lesson" && !done[items[i].id]){ nextId = items[i].id; break; } }
+
+    var finished = 0;
+    stopEls.forEach(function(el){
+      if (el.dataset.type === "lesson"){
+        var isDone = !!done[el.dataset.id];
+        el.classList.toggle("done", isDone);
+        el.classList.toggle("next", el.dataset.id === nextId);
+        if (isDone) finished++;
+      }
+    });
+
+    stopEls.forEach(function(el){
+      if (el.dataset.type === "milestone"){
+        var ri = +el.dataset.region, lessons = CURRICULUM[ri].lessons.length, c = 0;
+        for (var li=0; li<lessons; li++){ if (done[ri+"."+li]) c++; }
+        el.querySelector(".m-bar > i").style.width = (c/lessons*100)+"%";
+        el.querySelector(".m-count").textContent = c+" / "+lessons;
+        el.classList.toggle("complete", c===lessons);
+      }
+    });
+
+    var summitEl = stopEls[stopEls.length-1];
+    summitEl.classList.toggle("reached", finished===totalLessons && totalLessons>0);
+
+    var pct = totalLessons ? Math.round(finished/totalLessons*100) : 0;
+    var C = 2*Math.PI*46;
+    document.getElementById("ringFill").setAttribute("stroke-dashoffset", (C*(1-finished/totalLessons)).toFixed(2));
+    document.getElementById("ringPct").textContent = pct+"%";
+    document.getElementById("statDone").textContent = finished+"/"+totalLessons;
+
+    var curRegion = nextId ? CURRICULUM[+nextId.split(".")[0]] : null;
+    document.getElementById("statRegionName").textContent = curRegion ? curRegion.name : "";
+    document.getElementById("statRegion").textContent = curRegion ? ("Tema "+(+nextId.split(".")[0]+1)) : "¡Completo! 🎉";
+
+    drawRoad();
+  }
+
+  // ---- ubicar la senda + dibujar el camino ----
+  function layout(){
+    var laneW = lane.clientWidth;
+    var amp = Math.min(150, Math.max(30, laneW/2 - 130));
+    var k = 0;
+    stopEls.forEach(function(el){
+      var w = el.offsetWidth, off = 0;
+      if (el.dataset.type === "lesson"){ off = amp * Math.sin(k * 0.9); k++; }
+      el.style.marginLeft = (laneW/2 - w/2 + off) + "px";
+      el.style.marginBottom = (el.dataset.type === "lesson") ? "22px" : "26px";
+    });
+    drawRoad();
+  }
+
+  function centerOf(el){
+    var target = el.querySelector(".dot") || el.querySelector(".badge") || el.querySelector(".m-inner") || el;
+    var r = target.getBoundingClientRect(), lr = lane.getBoundingClientRect();
+    return { x: r.left + r.width/2 - lr.left, y: r.top + r.height/2 - lr.top };
+  }
+
+  function smooth(pts){
+    if (pts.length < 2) return "";
+    var d = "M " + pts[0].x.toFixed(1) + " " + pts[0].y.toFixed(1);
+    for (var i=0;i<pts.length-1;i++){
+      var p0 = pts[i-1]||pts[i], p1 = pts[i], p2 = pts[i+1], p3 = pts[i+2]||pts[i+1];
+      var c1x = p1.x + (p2.x-p0.x)/6, c1y = p1.y + (p2.y-p0.y)/6;
+      var c2x = p2.x - (p3.x-p1.x)/6, c2y = p2.y - (p3.y-p1.y)/6;
+      d += " C " + c1x.toFixed(1)+" "+c1y.toFixed(1)+", "+c2x.toFixed(1)+" "+c2y.toFixed(1)+", "+p2.x.toFixed(1)+" "+p2.y.toFixed(1);
+    }
+    return d;
+  }
+
+  function drawRoad(){
+    var pts = stopEls.map(centerOf);
+    road.setAttribute("width", lane.clientWidth);
+    road.setAttribute("height", lane.scrollHeight);
+    road.setAttribute("viewBox", "0 0 " + lane.clientWidth + " " + lane.scrollHeight);
+    var full = smooth(pts);
+    roadBase.setAttribute("d", full);
+    roadDash.setAttribute("d", full);
+
+    var frontier = -1;
+    for (var i=0;i<items.length;i++){ if (items[i].type==="lesson" && done[items[i].id]) frontier = i; }
+    if (frontier >= 1){ roadFill.setAttribute("d", smooth(pts.slice(0, frontier+1))); roadFill.style.display = ""; }
+    else { roadFill.setAttribute("d", ""); roadFill.style.display = "none"; }
+  }
+
+  // ---- init ----
+  render();
+  requestAnimationFrame(function(){ layout(); requestAnimationFrame(layout); });
+  var rt;
+  window.addEventListener("resize", function(){ clearTimeout(rt); rt = setTimeout(layout, 120); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+})();
+</script>
+</body>
+</html>
