@@ -247,17 +247,71 @@
     .sheet { max-width:none; border-radius:24px 24px 0 0; max-height:90vh; animation:riseSheet .3s cubic-bezier(.2,.8,.2,1); }
     @keyframes riseSheet { from{transform:translateY(100%)} to{transform:none} }
   }
+  /* ---------- Skill map ---------- */
+  .strand { margin-top:34px; }
+  .strand:first-of-type { margin-top:22px; }
+  .strand-title {
+    font-family:var(--font-display); font-weight:800; font-size:1.16rem; letter-spacing:-.01em;
+    margin:0 0 14px; color:var(--ink);
+  }
+  .skill-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; }
+  .skill-card {
+    text-align:left; font-family:var(--font-body); color:var(--ink);
+    background:var(--surface); border:1px solid var(--line); border-radius:18px;
+    padding:16px 16px 15px; display:flex; flex-direction:column; gap:8px;
+    box-shadow:0 4px 14px var(--shadow); position:relative;
+  }
+  button.skill-card { cursor:pointer; width:100%; transition:transform .12s ease, box-shadow .2s ease, border-color .2s; }
+  button.skill-card:hover { transform:translateY(-3px); box-shadow:0 12px 26px var(--shadow); border-color:color-mix(in srgb,var(--accent) 42%,var(--line)); }
+  button.skill-card:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+  .skill-card.mastered { border-color:color-mix(in srgb,var(--done) 45%,var(--line)); background:color-mix(in srgb,var(--done-soft) 50%,var(--surface)); }
+  .skill-card.locked { opacity:.6; }
+  .skill-card.stub { border-style:dashed; opacity:.72; }
+  .s-top { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+  .s-title { font-family:var(--font-display); font-weight:800; font-size:1.02rem; line-height:1.22; }
+  .s-blurb { font-size:.82rem; color:var(--ink-soft); line-height:1.35; }
+  .s-badge { flex:none; font-size:.64rem; font-weight:700; padding:3px 9px; border-radius:99px; white-space:nowrap; letter-spacing:.01em; }
+  .s-badge.done { background:var(--done); color:#fff; }
+  .s-badge.stub { background:var(--accent-soft); color:var(--accent-ink); }
+  .s-badge.lock { background:var(--paper-2); color:var(--ink-soft); }
+  .s-meta { font-size:.75rem; color:var(--ink-soft); margin-top:2px; line-height:1.35; }
+  .s-bar { height:7px; border-radius:99px; background:var(--paper-2); overflow:hidden; margin-top:4px; }
+  .s-bar > i { display:block; height:100%; background:var(--done); border-radius:99px; transition:width .5s ease; }
+  .s-count { font-size:.72rem; color:var(--ink-soft); font-variant-numeric:tabular-nums; }
+
+  /* ---------- Trail view chrome ---------- */
+  .back-btn {
+    margin:22px 0 0; background:transparent; border:1px solid var(--line); border-radius:99px;
+    padding:8px 15px; color:var(--ink-soft); font-family:var(--font-body); font-size:.85rem; cursor:pointer; transition:.2s;
+  }
+  .back-btn:hover { color:var(--ink); border-color:var(--ink-soft); }
+  .back-btn:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+  .trail-head { padding-top:20px; }
+  .resource-link {
+    display:inline-block; margin-top:14px; font-size:.85rem; font-weight:600; color:var(--accent-ink);
+    background:var(--accent-soft); border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));
+    border-radius:99px; padding:8px 16px; text-decoration:none;
+  }
+  .resource-link:hover { filter:brightness(.98); }
+  .resource-link::after { content:" \2197"; }
+  .mastery-banner {
+    margin:10px auto 0; max-width:520px; text-align:center; background:var(--done-soft); color:var(--done-ink);
+    border:1px solid color-mix(in srgb,var(--done) 40%,var(--line)); border-radius:16px; padding:14px 18px;
+    font-size:.95rem; line-height:1.45;
+  }
+
   @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
 </style>
 </head>
 <body>
 
-<div class="page">
+<!-- Vista: mapa de habilidades -->
+<div class="page" id="mapView">
   <div class="wrap">
     <header>
       <p class="eyebrow">Un viaje matemático para</p>
       <h1><span class="name" id="name" contenteditable="true" spellcheck="false">vos</span> 💚</h1>
-      <p class="lede">Un pasito a la vez, desde contar hasta la puerta del álgebra. Tocá una parada para ver los ejercicios y marcala cuando la tengas — el camino se pone verde detrás tuyo así ves todo lo que avanzaste.</p>
+      <p class="lede">Elegí una habilidad para practicar. Cuando dominás todas sus lecciones, se desbloquean las que siguen. Lo que está en gris todavía está por construirse — pero ya sabés que viene.</p>
 
       <div class="dash">
         <div class="ring-card">
@@ -270,14 +324,50 @@
             <div class="ring-label"><span class="ring-pct" id="ringPct">0%</span><span class="ring-sub">Hecho</span></div>
           </div>
           <div class="ring-meta">
-            <div class="stat"><div class="k" id="statDone">0/0</div><div class="l">Lecciones terminadas</div></div>
-            <div class="stat"><div class="k" id="statRegion" style="font-size:1rem">—</div><div class="l">Estás acá <b id="statRegionName"></b></div></div>
+            <div class="stat"><div class="k" id="statDone">0/0</div><div class="l">Lecciones hechas</div></div>
+            <div class="stat"><div class="k" id="statSkills">0/0</div><div class="l">Habilidades dominadas</div></div>
           </div>
         </div>
       </div>
     </header>
 
-    <main class="lane" id="lane" aria-label="Tu camino de aprendizaje">
+    <main id="skillMap" aria-label="Mapa de habilidades"></main>
+
+    <div class="foot">
+      <p>Todo se guarda solo en este dispositivo. Lo que dice “en construcción” son temas que vamos a ir sumando.</p>
+      <button class="reset" id="reset" type="button">Empezar de nuevo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Vista: una habilidad (el camino) -->
+<div class="page" id="trailView" hidden>
+  <div class="wrap">
+    <button class="back-btn" id="back" type="button">← Volver al mapa</button>
+    <header class="trail-head">
+      <p class="eyebrow" id="tStrand"></p>
+      <h1 id="tTitle"></h1>
+      <p class="lede" id="tBlurb"></p>
+      <a class="resource-link" id="tResource" target="_blank" rel="noopener" hidden>Ver este tema en Khan Academy</a>
+
+      <div class="dash">
+        <div class="ring-card">
+          <div class="ring">
+            <svg width="104" height="104" viewBox="0 0 104 104">
+              <circle class="ring-track" cx="52" cy="52" r="46" fill="none" stroke-width="10"></circle>
+              <circle class="ring-fill" id="tRingFill" cx="52" cy="52" r="46" fill="none" stroke-width="10"
+                      stroke-dasharray="289.03" stroke-dashoffset="289.03"></circle>
+            </svg>
+            <div class="ring-label"><span class="ring-pct" id="tRingPct">0%</span><span class="ring-sub">Hecho</span></div>
+          </div>
+          <div class="ring-meta">
+            <div class="stat"><div class="k" id="tDone">0/0</div><div class="l">Lecciones de esta habilidad</div></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="lane" id="lane" aria-label="El camino de esta habilidad">
       <svg class="road-svg" id="road" aria-hidden="true">
         <path class="road-base" id="roadBase" d=""></path>
         <path class="road-dash" id="roadDash" d=""></path>
@@ -285,10 +375,7 @@
       </svg>
     </main>
 
-    <div class="foot">
-      <p>Todo lo que tocás se guarda solo en este dispositivo — cerralo y volvé cuando quieras, tu progreso te va a estar esperando.</p>
-      <button class="reset" id="reset" type="button">Empezar de nuevo</button>
-    </div>
+    <div class="mastery-banner" id="masteryBanner" hidden></div>
   </div>
 </div>
 
@@ -466,6 +553,70 @@
 
   var STORE_KEY = "mathjourney.progress.v1";
   var NAME_KEY  = "mathjourney.name.v1";
+  var KA = "https://es.khanacademy.org/math";
+
+  // ---- grafo de habilidades ----
+  // Las habilidades "construidas" apuntan a lecciones de CURRICULUM con [region, índice].
+  // ref vacío = stub (en construcción): aparece en el mapa pero todavía no se practica.
+  var STRANDS = [
+    { id:"fundamentos", name:"Fundamentos" },
+    { id:"numero",      name:"Números" },
+    { id:"fracciones",  name:"Fracciones y decimales" },
+    { id:"algebra",     name:"Álgebra" },
+    { id:"funciones",   name:"Funciones" },
+    { id:"geometria",   name:"Geometría" },
+    { id:"calculo",     name:"Cálculo" },
+    { id:"datos",       name:"Datos y azar" }
+  ];
+  var strandName = {}; STRANDS.forEach(function(s){ strandName[s.id] = s.name; });
+
+  var SKILLS = [
+    { id:"numeros",       strand:"fundamentos", title:"Números y valor posicional", blurb:"Dónde vive cada número",            prereqs:[],                    ref:[[0,0],[0,1],[0,2]],                       resource:KA },
+    { id:"suma-resta",    strand:"fundamentos", title:"Suma y resta",               blurb:"Juntar y quitar",                   prereqs:["numeros"],           ref:[[1,0],[1,1],[1,2],[1,3]],                 resource:KA },
+    { id:"mult-div",      strand:"fundamentos", title:"Multiplicación y división",  blurb:"Sumar rápido, repartir justo",      prereqs:["suma-resta"],        ref:[[2,0],[2,1],[2,2],[2,3]],                 resource:KA },
+    { id:"orden",         strand:"fundamentos", title:"Orden de las operaciones",   blurb:"Quién va primero",                  prereqs:["mult-div"],          ref:[[6,0]],                                   resource:KA },
+
+    { id:"enteros",       strand:"numero",      title:"Enteros y negativos",        blurb:"Números por debajo del cero",       prereqs:["suma-resta"],        ref:[] },
+    { id:"potencias",     strand:"numero",      title:"Potencias y raíces",         blurb:"Multiplicar algo por sí mismo",     prereqs:["mult-div"],          ref:[] },
+
+    { id:"fracciones",    strand:"fracciones",  title:"Fracciones",                 blurb:"Partes de un entero",               prereqs:["mult-div"],          ref:[[3,0],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7]], resource:KA },
+    { id:"decimales",     strand:"fracciones",  title:"Decimales",                  blurb:"Fracciones disfrazadas",            prereqs:["fracciones"],        ref:[[4,0],[4,1],[4,2],[4,3]],                 resource:KA },
+    { id:"porcentajes",   strand:"fracciones",  title:"Porcentajes y proporciones", blurb:"De cada cien",                      prereqs:["decimales"],         ref:[[5,0],[5,1],[5,2]],                       resource:KA },
+
+    { id:"variables",     strand:"algebra",     title:"Variables y expresiones",    blurb:"Cuando las letras son números",     prereqs:["orden"],             ref:[[6,1]],                                   resource:KA },
+    { id:"ecuaciones",    strand:"algebra",     title:"Ecuaciones de primer grado", blurb:"Despejar la incógnita",             prereqs:["variables"],         ref:[[6,2]],                                   resource:KA },
+    { id:"sistemas",      strand:"algebra",     title:"Sistemas (dos variables)",   blurb:"Dos ecuaciones, dos incógnitas",    prereqs:["ecuaciones"],        ref:[] },
+    { id:"polinomios",    strand:"algebra",     title:"Polinomios y factorización", blurb:"Sumar y multiplicar expresiones",   prereqs:["ecuaciones","potencias"], ref:[] },
+    { id:"cuadraticas",   strand:"algebra",     title:"Ecuaciones cuadráticas",     blurb:"Cuando aparece x²",                 prereqs:["polinomios"],        ref:[] },
+
+    { id:"funciones",     strand:"funciones",   title:"Funciones y gráficos",       blurb:"Máquinas que transforman números",  prereqs:["ecuaciones"],        ref:[] },
+    { id:"recta",         strand:"funciones",   title:"La función lineal",          blurb:"La recta y su pendiente",           prereqs:["funciones"],         ref:[] },
+    { id:"explog",        strand:"funciones",   title:"Exponenciales y logaritmos", blurb:"Crecer muy rápido (y al revés)",    prereqs:["funciones","potencias"], ref:[] },
+
+    { id:"geo-basica",    strand:"geometria",   title:"Perímetro, área y volumen",  blurb:"Medir el espacio",                  prereqs:["mult-div","fracciones"], ref:[] },
+    { id:"pitagoras",     strand:"geometria",   title:"Teorema de Pitágoras",       blurb:"El lado que falta del triángulo",   prereqs:["potencias","geo-basica"], ref:[] },
+    { id:"trigonometria", strand:"geometria",   title:"Trigonometría básica",       blurb:"Ángulos y triángulos",              prereqs:["pitagoras"],         ref:[] },
+
+    { id:"limites",       strand:"calculo",     title:"Límites",                    blurb:"Acercarse sin llegar",              prereqs:["funciones"],         ref:[] },
+    { id:"derivadas",     strand:"calculo",     title:"Derivadas",                  blurb:"Qué tan rápido cambia algo",        prereqs:["limites"],           ref:[] },
+    { id:"integrales",    strand:"calculo",     title:"Integrales",                 blurb:"Sumar infinitos pedacitos",         prereqs:["derivadas"],         ref:[] },
+
+    { id:"probabilidad",  strand:"datos",       title:"Probabilidad y estadística", blurb:"Chances y datos",                   prereqs:["porcentajes"],       ref:[] }
+  ];
+  var skillById = {}; SKILLS.forEach(function(s){ skillById[s.id] = s; });
+
+  function refLesson(ref){
+    var ri = ref[0], li = ref[1], L = CURRICULUM[ri].lessons[li], id = ri + "." + li;
+    return { id:id, title:L.t, intro:INTROS[id] || "", exercises:L.ex };
+  }
+  function isStub(s){ return s.ref.length === 0; }
+  function skillDoneCount(s){ var c=0; s.ref.forEach(function(r){ if (done[r[0]+"."+r[1]]) c++; }); return c; }
+  function isMastered(s){ return s.ref.length > 0 && skillDoneCount(s) === s.ref.length; }
+  function prereqsMet(s){ return s.prereqs.every(function(id){ var p = skillById[id]; return p && isMastered(p); }); }
+  function skillState(s){ if (isStub(s)) return "stub"; if (isMastered(s)) return "mastered"; return prereqsMet(s) ? "available" : "locked"; }
+  function unmetPrereqTitles(s){
+    return s.prereqs.filter(function(id){ return !isMastered(skillById[id]); }).map(function(id){ return skillById[id].title; });
+  }
 
   var done = load();
   var lane = document.getElementById("lane");
@@ -473,61 +624,13 @@
   var roadBase = document.getElementById("roadBase");
   var roadDash = document.getElementById("roadDash");
   var roadFill = document.getElementById("roadFill");
+  var mapView = document.getElementById("mapView");
+  var trailView = document.getElementById("trailView");
+  var skillMap = document.getElementById("skillMap");
 
-  // ---- modelo: lista ordenada de items ----
-  var items = [];
-  items.push({ type:"start" });
-  var totalLessons = 0, seq = 0;
-  CURRICULUM.forEach(function(region, ri){
-    items.push({ type:"milestone", region:ri });
-    region.lessons.forEach(function(lesson, li){
-      seq++;
-      items.push({ type:"lesson", region:ri, id:ri+"."+li, title:lesson.t, exercises:lesson.ex, seq:seq });
-      totalLessons++;
-    });
-  });
-  items.push({ type:"summit" });
-
-  // ---- render de las paradas ----
-  var stopEls = [];
-  var dotById = {};
-  items.forEach(function(it){
-    var el = document.createElement("div");
-    el.className = "stop";
-    if (it.type === "lesson") {
-      el.dataset.type = "lesson"; el.dataset.id = it.id;
-      el.innerHTML =
-        '<div class="node">' +
-          '<button class="dot" type="button">' +
-            '<span class="num">'+it.seq+'</span><span class="chk" aria-hidden="true">✓</span>' +
-          '</button>' +
-          '<div class="label">'+it.title+'</div>' +
-        '</div>';
-      var btn = el.querySelector(".dot");
-      btn.setAttribute("aria-label", "Lección: " + it.title);
-      dotById[it.id] = btn;
-      btn.addEventListener("click", function(){ openModal(it, btn); });
-    } else if (it.type === "milestone") {
-      el.className = "stop wide milestone"; el.dataset.type = "milestone"; el.dataset.region = it.region;
-      var r = CURRICULUM[it.region];
-      el.innerHTML =
-        '<div class="m-inner">' +
-          '<span class="m-eyebrow">Tema '+(it.region+1)+' de '+CURRICULUM.length+'</span>' +
-          '<span class="m-title">'+r.name+'</span>' +
-          '<span class="m-note">'+r.note+'</span>' +
-          '<span class="m-bar"><i style="width:0%"></i></span>' +
-          '<span class="m-count">0 / '+r.lessons.length+'</span>' +
-        '</div>';
-    } else if (it.type === "start") {
-      el.className = "stop wide marker"; el.dataset.type = "start";
-      el.innerHTML = '<div class="badge">🌱</div><div class="cap">Empezá acá</div><div class="sub">Sin apuro. Los pasos chicos cuentan.</div>';
-    } else {
-      el.className = "stop wide marker summit"; el.dataset.type = "summit";
-      el.innerHTML = '<div class="badge">⭐</div><div class="cap">¡Lo lograste!</div><div class="sub">Lista para el álgebra de verdad.</div>';
-    }
-    lane.appendChild(el);
-    stopEls.push(el);
-  });
+  // ---- estado persistente ----
+  function load(){ try { var raw = localStorage.getItem(STORE_KEY); return raw ? JSON.parse(raw) : {}; } catch(e){ return {}; } }
+  function save(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(done)); } catch(e){} }
 
   // ---- nombre ----
   var nameEl = document.getElementById("name");
@@ -540,9 +643,108 @@
   });
   nameEl.addEventListener("keydown", function(e){ if (e.key === "Enter"){ e.preventDefault(); nameEl.blur(); } });
 
-  // ---- estado ----
-  function load(){ try { var raw = localStorage.getItem(STORE_KEY); return raw ? JSON.parse(raw) : {}; } catch(e){ return {}; } }
-  function save(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(done)); } catch(e){} }
+  // ---- MAPA de habilidades ----
+  function skillCard(s){
+    var st = skillState(s);
+    var interactive = (st === "available" || st === "mastered");
+    var el = document.createElement(interactive ? "button" : "div");
+    el.className = "skill-card " + st;
+    if (interactive) { el.type = "button"; el.addEventListener("click", function(){ openSkill(s); }); }
+
+    var n = s.ref.length, c = skillDoneCount(s);
+    var badge = st === "mastered" ? '<span class="s-badge done">✓ Dominada</span>'
+              : st === "stub"     ? '<span class="s-badge stub">🚧 En construcción</span>'
+              : st === "locked"   ? '<span class="s-badge lock">🔒</span>' : "";
+    var meta;
+    if (st === "stub") meta = '<span class="s-meta">Próximamente</span>';
+    else if (st === "locked") meta = '<span class="s-meta">Primero dominá: ' + unmetPrereqTitles(s).join(", ") + '</span>';
+    else meta = '<span class="s-bar"><i style="width:'+(n?c/n*100:0)+'%"></i></span><span class="s-count">'+c+' / '+n+' lecciones</span>';
+
+    el.innerHTML =
+      '<div class="s-top"><span class="s-title">'+s.title+'</span>'+badge+'</div>' +
+      '<span class="s-blurb">'+s.blurb+'</span>' + meta;
+    return el;
+  }
+
+  function renderMap(){
+    skillMap.innerHTML = "";
+    STRANDS.forEach(function(st){
+      var group = SKILLS.filter(function(s){ return s.strand === st.id; });
+      if (!group.length) return;
+      var sec = document.createElement("section"); sec.className = "strand";
+      var h = document.createElement("h2"); h.className = "strand-title"; h.textContent = st.name;
+      sec.appendChild(h);
+      var grid = document.createElement("div"); grid.className = "skill-grid";
+      group.forEach(function(s){ grid.appendChild(skillCard(s)); });
+      sec.appendChild(grid);
+      skillMap.appendChild(sec);
+    });
+
+    var built = SKILLS.filter(function(s){ return !isStub(s); });
+    var totalL = 0, doneL = 0;
+    built.forEach(function(s){ totalL += s.ref.length; doneL += skillDoneCount(s); });
+    var masteredN = built.filter(isMastered).length;
+    var C = 2*Math.PI*46;
+    document.getElementById("ringFill").setAttribute("stroke-dashoffset", (C*(1-(totalL?doneL/totalL:0))).toFixed(2));
+    document.getElementById("ringPct").textContent = (totalL?Math.round(doneL/totalL*100):0)+"%";
+    document.getElementById("statDone").textContent = doneL+"/"+totalL;
+    document.getElementById("statSkills").textContent = masteredN+"/"+built.length;
+  }
+
+  // ---- navegación entre vistas ----
+  var currentSkill = null;
+  var tStrand = document.getElementById("tStrand"), tTitle = document.getElementById("tTitle");
+  var tBlurb = document.getElementById("tBlurb"), tResource = document.getElementById("tResource");
+
+  function openSkill(s){
+    currentSkill = s;
+    tStrand.textContent = strandName[s.strand] || "";
+    tTitle.textContent = s.title;
+    tBlurb.textContent = s.blurb;
+    if (s.resource){ tResource.href = s.resource; tResource.hidden = false; } else { tResource.hidden = true; }
+    buildTrail(s);
+    mapView.hidden = true; trailView.hidden = false;
+    window.scrollTo(0, 0);
+    renderTrail();
+    requestAnimationFrame(function(){ layout(); requestAnimationFrame(layout); });
+  }
+  function backToMap(){
+    trailView.hidden = true; mapView.hidden = false; currentSkill = null;
+    renderMap(); window.scrollTo(0, 0);
+  }
+  document.getElementById("back").addEventListener("click", backToMap);
+
+  // ---- construir el camino de una habilidad ----
+  var items = [], stopEls = [];
+  function buildTrail(s){
+    var lessons = s.ref.map(refLesson);
+    items = [{ type:"start" }];
+    lessons.forEach(function(L, i){ items.push({ type:"lesson", id:L.id, title:L.title, intro:L.intro, exercises:L.exercises, seq:i+1 }); });
+    items.push({ type:"summit" });
+
+    Array.prototype.slice.call(lane.querySelectorAll(".stop")).forEach(function(n){ n.remove(); });
+    stopEls = [];
+    items.forEach(function(it){
+      var el = document.createElement("div"); el.className = "stop";
+      if (it.type === "lesson") {
+        el.dataset.type = "lesson"; el.dataset.id = it.id;
+        el.innerHTML =
+          '<div class="node"><button class="dot" type="button">' +
+            '<span class="num">'+it.seq+'</span><span class="chk" aria-hidden="true">✓</span>' +
+          '</button><div class="label">'+it.title+'</div></div>';
+        var btn = el.querySelector(".dot");
+        btn.setAttribute("aria-label", "Lección: " + it.title);
+        (function(it, btn){ btn.addEventListener("click", function(){ openModal(it, btn); }); })(it, btn);
+      } else if (it.type === "start") {
+        el.className = "stop wide marker"; el.dataset.type = "start";
+        el.innerHTML = '<div class="badge">🌱</div><div class="cap">Empezá acá</div><div class="sub">Sin apuro. Un pasito a la vez.</div>';
+      } else {
+        el.className = "stop wide marker summit"; el.dataset.type = "summit";
+        el.innerHTML = '<div class="badge">⭐</div><div class="cap">Fin de la habilidad</div><div class="sub">Completá las lecciones para dominarla.</div>';
+      }
+      lane.appendChild(el); stopEls.push(el);
+    });
+  }
 
   // ---- modal de ejercicios ----
   var modal = document.getElementById("modal");
@@ -557,10 +759,10 @@
   function openModal(it, btn){
     current = { item: it, dot: btn };
     lastFocus = btn;
-    mEyebrow.textContent = "Tema " + (it.region+1) + " · " + CURRICULUM[it.region].name;
+    mEyebrow.textContent = currentSkill ? currentSkill.title : "";
     mTitle.textContent = it.title;
-    mIntro.textContent = INTROS[it.id] || "";
-    mIntro.style.display = INTROS[it.id] ? "" : "none";
+    mIntro.textContent = it.intro || "";
+    mIntro.style.display = it.intro ? "" : "none";
     mExercises.innerHTML = "";
     it.exercises.forEach(function(ex, i){
       var wrap = document.createElement("div");
@@ -604,7 +806,7 @@
     else { done[id] = 1; var d = current.dot; d.classList.remove("pop"); void d.offsetWidth; d.classList.add("pop"); }
     save();
     updateMarkBtn();
-    render();
+    renderTrail();
   });
 
   mClose.addEventListener("click", closeModal);
@@ -612,17 +814,19 @@
   document.addEventListener("keydown", function(e){ if (e.key === "Escape" && !modal.hidden) closeModal(); });
 
   document.getElementById("reset").addEventListener("click", function(){
-    if (confirm("¿Borrar todo el progreso y empezar de cero?")) { done = {}; save(); render(); }
+    if (confirm("¿Borrar todo el progreso y empezar de cero?")) { done = {}; save(); renderMap(); }
   });
 
-  // ---- render de estado ----
-  function render(){
+  // ---- render del camino de la habilidad actual ----
+  var masteryBanner = document.getElementById("masteryBanner");
+  function renderTrail(){
     var nextId = null;
     for (var i=0;i<items.length;i++){ if (items[i].type==="lesson" && !done[items[i].id]){ nextId = items[i].id; break; } }
 
-    var finished = 0;
+    var finished = 0, total = 0;
     stopEls.forEach(function(el){
       if (el.dataset.type === "lesson"){
+        total++;
         var isDone = !!done[el.dataset.id];
         el.classList.toggle("done", isDone);
         el.classList.toggle("next", el.dataset.id === nextId);
@@ -630,34 +834,34 @@
       }
     });
 
-    stopEls.forEach(function(el){
-      if (el.dataset.type === "milestone"){
-        var ri = +el.dataset.region, lessons = CURRICULUM[ri].lessons.length, c = 0;
-        for (var li=0; li<lessons; li++){ if (done[ri+"."+li]) c++; }
-        el.querySelector(".m-bar > i").style.width = (c/lessons*100)+"%";
-        el.querySelector(".m-count").textContent = c+" / "+lessons;
-        el.classList.toggle("complete", c===lessons);
-      }
-    });
-
     var summitEl = stopEls[stopEls.length-1];
-    summitEl.classList.toggle("reached", finished===totalLessons && totalLessons>0);
+    var mastered = total > 0 && finished === total;
+    summitEl.classList.toggle("reached", mastered);
+    summitEl.querySelector(".cap").textContent = mastered ? "¡Habilidad dominada!" : "Fin de la habilidad";
+    summitEl.querySelector(".sub").textContent = mastered ? "Buenísimo. Ya podés seguir con lo que se desbloqueó." : "Completá las lecciones para dominarla.";
 
-    var pct = totalLessons ? Math.round(finished/totalLessons*100) : 0;
     var C = 2*Math.PI*46;
-    document.getElementById("ringFill").setAttribute("stroke-dashoffset", (C*(1-finished/totalLessons)).toFixed(2));
-    document.getElementById("ringPct").textContent = pct+"%";
-    document.getElementById("statDone").textContent = finished+"/"+totalLessons;
+    document.getElementById("tRingFill").setAttribute("stroke-dashoffset", (C*(1-(total?finished/total:0))).toFixed(2));
+    document.getElementById("tRingPct").textContent = (total?Math.round(finished/total*100):0)+"%";
+    document.getElementById("tDone").textContent = finished+"/"+total;
 
-    var curRegion = nextId ? CURRICULUM[+nextId.split(".")[0]] : null;
-    document.getElementById("statRegionName").textContent = curRegion ? curRegion.name : "";
-    document.getElementById("statRegion").textContent = curRegion ? ("Tema "+(+nextId.split(".")[0]+1)) : "¡Completo! 🎉";
-
+    if (mastered && currentSkill){
+      var unlocked = SKILLS.filter(function(s){
+        return !isStub(s) && s.prereqs.indexOf(currentSkill.id) >= 0 && prereqsMet(s) && !isMastered(s);
+      }).map(function(s){ return s.title; });
+      masteryBanner.hidden = false;
+      masteryBanner.innerHTML = unlocked.length
+        ? '🎉 <b>¡Dominaste ' + currentSkill.title + '!</b> Desbloqueaste: ' + unlocked.join(", ") + '.'
+        : '🎉 <b>¡Dominaste ' + currentSkill.title + '!</b>';
+    } else {
+      masteryBanner.hidden = true;
+    }
     drawRoad();
   }
 
   // ---- ubicar la senda + dibujar el camino ----
   function layout(){
+    if (trailView.hidden) return;
     var laneW = lane.clientWidth;
     var amp = Math.min(150, Math.max(30, laneW/2 - 130));
     var k = 0;
@@ -704,11 +908,10 @@
   }
 
   // ---- init ----
-  render();
-  requestAnimationFrame(function(){ layout(); requestAnimationFrame(layout); });
+  renderMap();
   var rt;
   window.addEventListener("resize", function(){ clearTimeout(rt); rt = setTimeout(layout, 120); });
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ layout(); });
 })();
 </script>
 </body>
