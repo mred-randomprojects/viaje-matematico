@@ -179,6 +179,15 @@
   }
   .reset:hover { color:var(--ink); border-color:var(--ink-soft); }
   .reset:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+  .other-course {
+    display:inline-flex; align-items:center; gap:8px; margin-top:18px;
+    font-family:var(--font-body); font-size:.86rem; font-weight:600; text-decoration:none;
+    color:var(--accent-ink); background:var(--accent-soft);
+    border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);
+    border-radius:99px; padding:8px 16px; transition:.2s;
+  }
+  .other-course:hover { border-color:var(--accent); transform:translateY(-1px); }
+  .other-course:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
 
   /* ---------- Modal / hoja de ejercicios ---------- */
   .modal[hidden] { display:none; }
@@ -431,6 +440,8 @@
       <p class="eyebrow">Un viaje matemático para</p>
       <h1><span class="name" id="name" contenteditable="true" spellcheck="false">vos</span> 💚</h1>
       <p class="lede">Elegí una habilidad para practicar. Cuando dominás todas sus lecciones, se desbloquean las que siguen. Lo que está en gris todavía está por construirse — pero ya sabés que viene.</p>
+
+      <div><a class="other-course" href="./experiments/argentina-historia/index.html">🇦🇷 Aprender historia argentina →</a></div>
 
       <div class="dash">
         <div class="level-card">

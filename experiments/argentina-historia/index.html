@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Argentina: los últimos 100 años</title>
+<style>
+  :root{
+    --bg:#f6f4ef; --card:#fff; --ink:#26221c; --soft:#6f675b; --line:#e5e0d6;
+    --accent:#3b6ea5; --ok:#2f8f5b; --review:#c8792a; --lock:#b9b2a5; --blackbox:#7a5ea8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink)}
+  .wrap{max-width:720px;margin:0 auto;padding:20px 16px 80px}
+  header h1{font-size:22px;margin:0 0 4px}
+  header p{margin:0 0 16px;color:var(--soft);font-size:14px}
+  .goal{background:#efeadf;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--soft);margin-bottom:18px}
+  .strand{margin:22px 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+  .skill{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);
+    border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;font:inherit;color:inherit}
+  .skill:disabled{cursor:default;opacity:.62}
+  .skill .t{font-weight:600}
+  .skill .sub{font-size:12px;color:var(--soft)}
+  .badge{margin-left:auto;font-size:11px;padding:3px 8px;border-radius:999px;white-space:nowrap}
+  .b-must{background:#e7eef6;color:var(--accent)}
+  .b-black{background:#efe9f6;color:var(--blackbox)}
+  .b-ctx{background:#eee;color:var(--soft)}
+  .dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
+  .d-done{background:var(--ok)} .d-open{background:var(--accent)} .d-stub{background:var(--lock)}
+  .backbtn{background:none;border:none;color:var(--accent);font:inherit;cursor:pointer;padding:6px 0;margin-bottom:6px}
+  .theory{background:#efeadf;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:8px 0 20px;font-size:15px}
+  .lesson{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+  .lesson h3{margin:0 0 8px;font-size:17px}
+  .intro{font-size:15px}
+  .worked{background:#f3f0e8;border-left:3px solid var(--accent);border-radius:6px;padding:9px 12px;margin:12px 0;font-size:14px;color:#443d33}
+  .worked b{color:var(--accent)}
+  .ex{border-top:1px solid var(--line);padding:12px 0}
+  .ex-q{font-weight:600;margin-bottom:8px}
+  .ex-q .n{display:inline-block;min-width:22px;color:var(--soft);font-weight:700}
+  .reveal{background:#eef0f2;border:1px solid var(--line);border-radius:8px;padding:7px 12px;font:inherit;cursor:pointer;color:var(--ink)}
+  .ans{margin-top:10px;background:#f0f5ef;border:1px solid #d6e6d6;border-radius:8px;padding:9px 12px;font-size:14px}
+  .rate{display:flex;gap:8px;margin-top:10px}
+  .rate button{flex:1;border-radius:8px;padding:8px;font:inherit;cursor:pointer;border:1px solid var(--line);background:#fff}
+  .rate .known.on{background:var(--ok);color:#fff;border-color:var(--ok)}
+  .rate .review.on{background:var(--review);color:#fff;border-color:var(--review)}
+  .lesson.done{outline:2px solid #d6e6d6}
+  .pill{display:inline-block;font-size:12px;color:var(--soft);margin-left:8px}
+  .reviewbar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);
+    padding:10px 16px;text-align:center}
+  .reviewbar button{background:var(--review);color:#fff;border:none;border-radius:10px;padding:10px 18px;font:inherit;cursor:pointer}
+  .reviewbar button:disabled{background:#ddd;color:#999;cursor:default}
+  .note{font-size:12px;color:var(--soft);margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="reviewbar"><button id="reviewBtn"></button><div class="note" id="reviewNote"></div></div>
+
+<!-- La columna vertebral y las habilidades construidas (una por archivo). -->
+<script src="course.js"></script>
+<script src="skills/01-mapa-del-siglo.js"></script>
+
+<script>
+(function(){
+  var C = window.COURSE;
+  var app = document.getElementById("app");
+  var reviewBtn = document.getElementById("reviewBtn");
+  var reviewNote = document.getElementById("reviewNote");
+  var KEY = "arg-hist:v1";
+
+  // --- estado (localStorage) ---
+  var state = load();
+  function load(){ try { return JSON.parse(localStorage.getItem(KEY)) || {ratings:{}}; } catch(e){ return {ratings:{}}; } }
+  function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+  function exKey(sid,li,ei){ return sid+":"+li+":"+ei; }
+
+  // índice plano de todos los ejercicios (para el repaso)
+  function allExercises(){
+    var out=[];
+    C.manifest.forEach(function(m){
+      var sk=C.skills[m.id]; if(!sk||m.status!=="built") return;
+      sk.lessons.forEach(function(ls,li){ (ls.ex||[]).forEach(function(ex,ei){
+        out.push({key:exKey(m.id,li,ei),skill:m.title,q:ex.q,a:ex.a});
+      });});
+    });
+    return out;
+  }
+  function lessonDone(sid,ls,li){ return (ls.ex||[]).every(function(_,ei){ return state.ratings[exKey(sid,li,ei)]; }); }
+  function skillMastered(m){ var sk=C.skills[m.id]; if(!sk||m.status!=="built") return false;
+    return sk.lessons.every(function(ls,li){ return lessonDone(m.id,ls,li); }); }
+  function prereqsMet(m){ return (m.prereqs||[]).every(function(pid){
+    var pm=C.manifest.filter(function(x){return x.id===pid;})[0]; return pm && skillMastered(pm); }); }
+
+  function updateReviewBar(){
+    var n = allExercises().filter(function(e){ return state.ratings[e.key]==="review"; }).length;
+    reviewBtn.textContent = "🔁 Sesión de repaso ("+n+")";
+    reviewBtn.disabled = n===0;
+    reviewNote.textContent = n===0 ? "Marcá ejercicios como “a repasar” y vuelven acá."
+                                   : "Repasás lo que marcaste flojo, mezclado.";
+  }
+
+  // --- vista MAPA ---
+  function renderMap(){
+    var h = '<header><h1>'+C.meta.title+'</h1><p>Un curso de prueba · español (Argentina)</p></header>';
+    h += '<div class="goal"><b>Meta:</b> '+C.meta.goal+'</div>';
+    var lastStrand=null;
+    C.manifest.forEach(function(m){
+      if(m.strand!==lastStrand){ h+='<div class="strand">'+m.strand+'</div>'; lastStrand=m.strand; }
+      var built = m.status==="built";
+      var open = built && prereqsMet(m);
+      var mastered = skillMastered(m);
+      var dotClass = mastered?"d-done":(open?"d-open":"d-stub");
+      var badge = m.importance==="must-learn"?'<span class="badge b-must">clave</span>'
+                : m.importance==="black-box"?'<span class="badge b-black">caja negra</span>'
+                : '<span class="badge b-ctx">contexto</span>';
+      var sub = !built ? "En construcción" : (!open ? "Se desbloquea al dominar lo anterior"
+              : mastered ? "¡Dominada!" : "Disponible");
+      h += '<button class="skill" data-id="'+m.id+'" '+(open?'':'disabled')+'>'+
+             '<span class="dot '+dotClass+'"></span>'+
+             '<span><span class="t">'+m.title+'</span><br><span class="sub">'+sub+'</span></span>'+
+             badge+'</button>';
+    });
+    app.innerHTML = h;
+    Array.prototype.forEach.call(app.querySelectorAll(".skill"), function(b){
+      if(b.disabled) return;
+      b.addEventListener("click", function(){ renderSkill(b.dataset.id); window.scrollTo(0,0); });
+    });
+    updateReviewBar();
+  }
+
+  // --- vista HABILIDAD ---
+  function renderSkill(id){
+    var m = C.manifest.filter(function(x){return x.id===id;})[0];
+    var sk = C.skills[id];
+    var h = '<button class="backbtn" id="back">← Volver al mapa</button>';
+    h += '<header><h1>'+sk.title+'</h1></header>';
+    h += '<div class="theory"><b>Antes de empezar.</b> '+sk.theory+'</div>';
+    sk.lessons.forEach(function(ls,li){
+      var done = lessonDone(id,ls,li);
+      h += '<div class="lesson'+(done?' done':'')+'" id="L'+li+'">';
+      h += '<h3>'+(li+1)+'. '+ls.t+(done?'<span class="pill">✓ hecha</span>':'')+'</h3>';
+      h += '<div class="intro">'+ls.intro+'</div>';
+      if(ls.worked) h += '<div class="worked"><b>Ejemplo.</b> '+ls.worked+'</div>';
+      (ls.ex||[]).forEach(function(ex,ei){ h += exHTML(exKey(id,li,ei),ei+1,ex); });
+      h += '</div>';
+    });
+    app.innerHTML = h;
+    document.getElementById("back").addEventListener("click", function(){ renderMap(); window.scrollTo(0,0); });
+    wireExercises(app);
+    updateReviewBar();
+  }
+
+  // --- un ejercicio (modo self-assessed: revelar → autoevaluarse) ---
+  function exHTML(key,n,ex){
+    var r = state.ratings[key];
+    return '<div class="ex" data-key="'+key+'">'+
+      '<div class="ex-q"><span class="n">'+n+'.</span> '+ex.q+'</div>'+
+      '<button class="reveal">Ver respuesta</button>'+
+      '<div class="ans" hidden><b>Respuesta:</b> '+ex.a+'</div>'+
+      '<div class="rate" hidden>'+
+        '<button class="known'+(r==="known"?" on":"")+'">✓ La sabía</button>'+
+        '<button class="review'+(r==="review"?" on":"")+'">↻ A repasar</button>'+
+      '</div></div>';
+  }
+
+  function wireExercises(root){
+    Array.prototype.forEach.call(root.querySelectorAll(".ex"), function(node){
+      var key = node.dataset.key;
+      var reveal = node.querySelector(".reveal");
+      var ans = node.querySelector(".ans");
+      var rate = node.querySelector(".rate");
+      var kb = node.querySelector(".known"), rb = node.querySelector(".review");
+      // si ya estaba calificado, mostramos respuesta directamente
+      if(state.ratings[key]){ ans.hidden=false; rate.hidden=false; reveal.textContent="Ocultar respuesta"; }
+      reveal.addEventListener("click", function(){
+        var show = ans.hidden;
+        ans.hidden = !show; rate.hidden = !show;
+        reveal.textContent = show ? "Ocultar respuesta" : "Ver respuesta";
+      });
+      function mark(v){
+        state.ratings[key]=v; save();
+        kb.classList.toggle("on",v==="known"); rb.classList.toggle("on",v==="review");
+        // reflejar "lección hecha" y barra de repaso sin re-render completo
+        updateReviewBar(); refreshLessonDone(node);
+      }
+      kb.addEventListener("click", function(){ mark("known"); });
+      rb.addEventListener("click", function(){ mark("review"); });
+    });
+  }
+
+  function refreshLessonDone(exNode){
+    var lesson = exNode.closest ? exNode.closest(".lesson") : null;
+    if(!lesson) return;
+    var allRated = Array.prototype.every.call(lesson.querySelectorAll(".ex"), function(n){
+      return state.ratings[n.dataset.key]; });
+    lesson.classList.toggle("done", allRated);
+    if(allRated && !lesson.querySelector(".pill")){
+      lesson.querySelector("h3").innerHTML += '<span class="pill">✓ hecha</span>';
+    }
+  }
+
+  // --- SESIÓN DE REPASO (redundancia): sólo lo marcado "a repasar", mezclado ---
+  function renderReview(){
+    var items = allExercises().filter(function(e){ return state.ratings[e.key]==="review"; });
+    // mezcla determinística simple (sin Math.random): por longitud de la clave
+    items.sort(function(a,b){ return (a.key.length-b.key.length) || a.key.localeCompare(b.key); });
+    var h = '<button class="backbtn" id="back">← Volver al mapa</button>';
+    h += '<header><h1>🔁 Sesión de repaso</h1><p>Lo que marcaste flojo, de todo el curso.</p></header>';
+    if(!items.length){ h+='<div class="theory">Nada para repasar por ahora. ¡Bien ahí!</div>'; }
+    items.forEach(function(e,i){
+      h += '<div class="lesson"><div class="pill">'+e.skill+'</div>'+ exHTML(e.key,i+1,{q:e.q,a:e.a}) +'</div>';
+    });
+    app.innerHTML = h;
+    document.getElementById("back").addEventListener("click", function(){ renderMap(); window.scrollTo(0,0); });
+    wireExercises(app);
+    updateReviewBar();
+  }
+
+  reviewBtn.addEventListener("click", function(){ renderReview(); window.scrollTo(0,0); });
+
+  // --- init ---
+  if(C.audit) C.audit();   // corre la auditoría de dependencias en la consola
+  renderMap();
+})();
+</script>
+</body>
+</html>
