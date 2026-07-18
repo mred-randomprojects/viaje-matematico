@@ -29,6 +29,10 @@ DEPTH:            <survey | working-competence | deep>  (how far down the rabbit
 SOURCE:           established-knowledge  |  internal-material
                    (established = terminal, JS, math — use canonical knowledge.
                     internal = a proprietary system — you MUST read the real code/docs, §2b)
+BUILD:            first-skill-only  |  full
+                   (first-skill-only = fully build skill 1, STUB the rest for a human to
+                    review before generating — saves tokens, forces importance to be vetted.
+                    See "Judging importance".)
 ```
 
 ---
@@ -37,10 +41,11 @@ SOURCE:           established-knowledge  |  internal-material
 
 If the course violates any of these, it has failed — no matter how good it looks.
 
-1. **No forward references, ever.** A term, symbol, or concept may only appear in a lesson
-   **at or after** the lesson that introduces it. If a learner meets one word they were
-   never taught, the illusion of "I can learn this" breaks. This is the whole game. §9 is a
-   mandatory audit for exactly this.
+1. **No forward references, ever — at the depth the lesson needs.** A term, symbol, or
+   concept may only be *used* in a lesson at a depth it has already been *taught* to. If a
+   learner meets a word they were never introduced to — or one leaned on at a deeper level
+   than they've seen — the illusion of "I can learn this" breaks. Introducing a concept is
+   **not a checkbox: it has levels** (black box → working → deep, see §2d). §9 audits this.
 2. **Every answer is correct, and correctness is *established*, not asserted.** For
    `objective` topics, generate and check answers by *running code*, never by hand — your
    own mental arithmetic/parsing is not trusted. For `self-assessed` topics, every reveal
@@ -53,6 +58,13 @@ If the course violates any of these, it has failed — no matter how good it loo
 5. **Hard ideas get *more* lessons, not denser ones.** Depth over breadth. When a concept
    is a known stumbling block, give it 2–4 lessons that approach it from different angles,
    not one heavy lesson.
+6. **Judge importance — don't teach everything flat.** Not every fact deserves a lesson or a
+   test. Actively decide, *relative to the GOAL*, what must be learned and drilled, what is
+   context that only needs a black box, and what can be dropped. This judgement is part of
+   the job, and it is the artifact a human reviews first (see "Judging importance").
+7. **Complete the picture without overloading it.** When something is needed for context but
+   isn't the point (a world event, an adjacent subsystem), give it a *black box*: a short,
+   testable "here's the shape and why it matters," not the full detail (see §4b).
 
 State the BASELINE assumptions out loud in the course intro so the learner (or reviewer)
 can say "actually, I don't know that" — and then that becomes lesson zero.
@@ -90,6 +102,16 @@ docs, and configs. Extract the real concepts and *their* dependencies. **Flag ev
 plausible-sounding answer. A confident wrong explanation of an internal system is worse
 than an honest gap.
 
+For a codebase specifically, **the GOAL sets the *grain* of importance.** "Trace a request
+through the backend" means the **flow** is high-importance (each hop, what it does, why the
+request moves on) and **exact identifiers are low-importance** — teach the 3–5 landmark
+names (the entrypoint, the main handler) and black-box the rest, because names are cheap to
+look up and the *shape* is what's hard to reconstruct. Derive importance from the real
+artifacts, not vibes: follow the router → handler → service call graph; "important" ≈ on the
+request path / high fan-in / named in the docs. This is a mechanical reading task an LLM does
+*well* when pointed at the code and told the GOAL — far better than ranking importance from
+memory.
+
 ### 2c. Topologically sort, and find the true zero
 
 Order concepts so every concept comes after everything it requires. Then push the front of
@@ -97,6 +119,27 @@ the line *downward*: keep asking "what does the very first concept assume?" unti
 the BASELINE floor. The floor is where the course starts. If sorting reveals a cycle, you
 have mis-modelled something — two concepts don't truly depend on each other; one version of
 one of them is more primitive. Fix the graph.
+
+### 2d. Track concepts with *depth levels*, not a checkbox
+
+A concept isn't simply "introduced or not." The same word carries different depths at
+different points: `peronismo` might first appear as a one-line black box ("the movement
+Perón founded"), then get a whole skill later. Track, per concept, the **deepest level it
+has reached so far**:
+
+```
+concept          level 1 (black box)          level 2 (working)          level 3 (deep)
+---------------- ---------------------------- -------------------------- ------------------------
+golpe de estado  "the military seizes power"  who/why/how it unfolds     —
+peronismo        "the movement Perón founded" its policies & base        historiographic debate
+```
+
+Each lesson declares what it **introduces** (concept + the level it raises it to) and what
+it **uses** (concept + the level it relies on). This generalises principle #1: *a lesson may
+only use a concept at a level ≤ the level already introduced.* Using `peronismo@2` before any
+lesson has raised it past level 1 is a violation, exactly like using an undefined word. This
+is what lets you deliberately teach shallow-first and deepen later — good teaching — without
+losing the no-forward-reference guarantee. §9's audit is depth-aware for this reason.
 
 ---
 
@@ -144,6 +187,21 @@ Every lesson has the same skeleton. Fill all four parts.
 Also produce, once per skill: a **skill-level theory page** — one page that lays out the
 whole idea of the skill before its lessons, for the learner who wants the theory before the
 practice makes sense. (This is the "one-page theory note" that per-lesson intros don't cover.)
+
+### 4b. Two techniques worth using everywhere
+
+**Black boxes (progressive disclosure).** For context the learner needs but shouldn't fully
+study, teach the *shape*, not the detail: "In the 1940s a huge war engulfed Europe — the
+Second World War; what matters *here* is that it drove demand for Argentine exports and
+shaped the politics that followed." Introduce it at level 1 and **test only the shape** ("why
+did it matter *for Argentina*?"), never the detail you didn't teach. A black box can be
+opened later — or never, if the GOAL doesn't need it.
+
+**Memory anchors (co-occurrence).** Tie a new fact to a vivid, *true* landmark the learner
+can hang it on: "television arrived in Argentina in 1951 — while Perón was president." These
+"this happened *while* that" cross-links make facts stick far better than isolated dates.
+The anchor must be fact-checked like any other answer — a memorable *wrong* anchor is worse
+than none.
 
 ---
 
@@ -250,12 +308,13 @@ needed:
 This is the mechanical pass that fixes the LLM dependency weakness. Do it explicitly; do
 not eyeball it.
 
-1. **Vocabulary-gate walk.** Go lesson by lesson, top to bottom, maintaining a running set
-   `introduced`. For each lesson, scan its theory + worked example + every exercise for
-   domain terms. **Any term not already in `introduced` (and not in BASELINE) is a
-   violation** — either move its introduction earlier or add the missing lesson. Add this
-   lesson's new terms to `introduced` and continue. Report the violations you found and
-   fixed.
+1. **Vocabulary-gate walk (depth-aware).** Go lesson by lesson, top to bottom, maintaining a
+   map `reached: concept → deepest level introduced so far`. For each lesson, scan its theory
+   + worked example + every exercise and check every concept it *uses* against `reached`:
+   using a concept at/below its introduced level is fine; a concept **not in `reached` (and
+   not in BASELINE), or used above its introduced level, is a violation** — move its
+   introduction earlier, add the missing lesson, or lower the depth you lean on. Then fold in
+   what this lesson introduces and continue. Report the violations you found and fixed.
 2. **Prerequisite integrity.** For every skill, confirm each `prereq` actually exists, is
    reachable, and truly precedes it. No cycles. No skill depending on something later.
 3. **Answer correctness pass.** Re-verify every objective answer by code; re-confirm every
@@ -264,45 +323,95 @@ not eyeball it.
    secretly two — split them.
 5. **Misconception coverage.** Confirm each concept has at least one exercise aimed at its
    common mistake.
+6. **Importance review.** Confirm the importance calls (what got a full lesson, what got a
+   black box, what got dropped) are defensible against the GOAL — and that they're written
+   down where a human can veto them *before* you spend tokens building the rest.
 
 Only after this audit passes is the course shippable. Say plainly what the audit found —
 if it found nothing, be suspicious you didn't really run it.
 
 ---
 
+## Judging importance (and building on demand)
+
+Two problems solved by one workflow.
+
+**Importance is not absolute — it's relative to the GOAL.** A president who lasted three
+months during a crisis is a footnote for "learn the shape of the century" but the whole point
+for "study the 2001 collapse." So before building, produce a ranked **importance pass**:
+- **must-learn** → gets its own lesson(s) and is drilled and reviewed;
+- **black box** → gets one testable line (§4b), never the full detail;
+- **drop** → not mentioned, or mentioned once without a test.
+Write this down as an annotated syllabus a human can read in one sitting. Half-lasting
+caretaker presidents, minor internal helpers, tangential world events — these are exactly
+where an LLM over-teaches; make the "drop / black-box" calls explicit so they can be checked.
+
+**Build on demand to save tokens and to calibrate judgement.** When `BUILD = first-skill-only`:
+fully write skill 1, and leave every other skill as a **stub** — a real node on the map with
+its title, prereqs, and importance note, but `status: "stub"` and no lessons yet. Ship that.
+The human reviews the stub list (which *is* the importance judgement made visible), corrects
+the calls, and only then do you spend tokens generating the rest. This turns "did the AI
+judge importance well?" from an expensive gamble into a cheap, reviewable checkpoint.
+
+---
+
 ## 10. Deliverable
 
-- A working, self-contained course the learner can actually use (the reference
-  implementation here is a single `index.html`: all content in a `SKILLS` array, progress in
-  `localStorage`, no build step, no dependencies — copy that shape unless there's a reason
-  not to).
-- The **concept dependency graph** (§2a) kept as a doc — it's the map that proves there are
-  no hidden prerequisites, and it's what a human reviews first.
+- A working, self-contained course the learner can actually use — **split so the file tree
+  mirrors the syllabus** (see the architecture below): a small viewer, a manifest, and one
+  file per skill. This keeps edits local (touch one skill without loading the rest → smaller
+  context) and makes the whole plan visible with `ls`.
+- The **concept dependency graph with depth levels** (§2a, §2d) kept as data — it's the map
+  that proves there are no hidden prerequisites, and it's what a human reviews first.
+- The annotated **importance pass** (above): what's must-learn vs black box vs dropped.
 - A short **audit report** (§9): violations found and fixed, and how answers were verified.
 
 ---
 
-## Appendix — reference data model (from `Tu Viaje Matemático`)
+## Appendix — reference architecture (per-skill files)
 
-```js
-// A skill node on the map:
-{ id, strand, title, blurb, prereqs: [ /* skill ids */ ], lessons: [ /* … */ ] }
+A single giant HTML bloats editing context and forces you to load every skill to change one.
+Split it: **a manifest + one data file per skill + a thin viewer.** The directory *is* the
+syllabus. Use `<script src>` includes (not `fetch`) so it opens straight from `file://` with
+no server.
 
-// A lesson inside a skill:
-{ t: "lesson title",
-  intro: "the short theory note shown above the exercises",
-  ex: [ /* exercises */ ] }
-
-// An exercise (objective mode):
-{ q: "the question",
-  a: "revealed answer text",
-  n: 42 }        // optional: a code-verified NUMERIC answer → renders a self-checking input.
-                 //   present  → typed box, auto-checks, reveals after 3 tries.
-                 //   absent   → plain "reveal answer" button (lists, yes/no, explanations).
-
-// mastery: a skill is mastered when every lesson is done; a skill unlocks only when all
-// its prereqs are mastered. Stubs (no lessons yet) stay on the map as "coming soon".
+```
+course/
+  index.html            # thin viewer: engine + <script src> per skill file
+  course.js             # window.COURSE: meta, concept registry (with depth levels),
+                        #   and the ordered skill manifest (id, title, strand, prereqs,
+                        #   importance, status: "built" | "stub")
+  skills/
+    01-<slug>.js        # COURSE.registerSkill({...})  — one BUILT skill, its lessons
+    02-<slug>.js        # stub or built; filename order = teaching order
+    ...
 ```
 
-To adapt for **self-assessed** topics: drop `n`, keep `a` as the reveal, and add a
-got-it / needs-review control per exercise that writes into the §7 review boxes.
+```js
+// A skill file registers one node:
+COURSE.registerSkill({
+  id, strand, title, blurb,
+  prereqs: [ /* skill ids */ ],
+  importance: "must-learn" | "black-box" | "context",
+  status: "built" | "stub",
+  theory: "the once-per-skill one-page theory note (§4)",
+  lessons: [{
+    t: "lesson title",
+    intro: "short theory note shown above the exercises",
+    worked: "one fully worked/oriented example before the learner does anything",
+    introduces: [ { concept: "peronismo", level: 1 } ],   // depth-aware, §2d
+    uses:       [ { concept: "golpe-de-estado", level: 1 } ],
+    ex: [ /* exercises */ ]
+  }]
+})
+
+// Exercise — objective mode (a script can confirm the answer):
+{ q: "…", a: "revealed answer", n: 42 }   // n present → self-checking input, reveals after 3 tries
+
+// Exercise — self-assessed mode (judgement, not string-matchable):
+{ q: "…", a: "revealed answer", mode: "recall-then-rate" }
+                        // commit → reveal → rate got-it / needs-review → feeds §7 review boxes
+
+// mastery: a skill is mastered when its lessons are engaged; it unlocks only when all
+// prereqs are mastered. Stubs stay on the map as "coming soon" so the summit is always visible.
+```
