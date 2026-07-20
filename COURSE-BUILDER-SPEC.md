@@ -195,7 +195,10 @@ study, teach the *shape*, not the detail: "In the 1940s a huge war engulfed Euro
 Second World War; what matters *here* is that it drove demand for Argentine exports and
 shaped the politics that followed." Introduce it at level 1 and **test only the shape** ("why
 did it matter *for Argentina*?"), never the detail you didn't teach. A black box can be
-opened later — or never, if the GOAL doesn't need it.
+opened later — or never, if the GOAL doesn't need it. **"Black box" is a *builder* term —
+never let it leak into learner-facing copy** (titles, badges, blurbs); to the learner it is
+just a lighter "overview / at-a-glance" lesson. Keep the method vocabulary in the metadata,
+not on the screen.
 
 **Memory anchors (co-occurrence).** Tie a new fact to a vivid, *true* landmark the learner
 can hang it on: "television arrived in Argentina in 1951 — while Perón was president." These
