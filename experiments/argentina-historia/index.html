@@ -112,7 +112,7 @@
       var mastered = skillMastered(m);
       var dotClass = mastered?"d-done":(open?"d-open":"d-stub");
       var badge = m.importance==="must-learn"?'<span class="badge b-must">clave</span>'
-                : m.importance==="black-box"?'<span class="badge b-black">caja negra</span>'
+                : m.importance==="black-box"?'<span class="badge b-black">vistazo</span>'
                 : '<span class="badge b-ctx">contexto</span>';
       var sub = !built ? "En construcción" : (!open ? "Se desbloquea al dominar lo anterior"
               : mastered ? "¡Dominada!" : "Disponible");
